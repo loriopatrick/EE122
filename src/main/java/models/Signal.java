@@ -14,16 +14,31 @@ public class Signal {
         this.energy = energy;
     }
 
-    // Signal is no longer emitting,
-    // however can still be traveling through space
-    public boolean alive;
-    // Time since the signal first started
-    public int lifetimeStart;
-    // Time since the signal is no longer alive
-    public int lifetimeEnd;
+    protected boolean alive; // Whether source is still transmitting
+    private int lifetimeStart; // Time since the signal first started
+    private int lifetimeEnd; // Time since the signal is no longer alive
 
     public double getStrength(Receiver rcv) {
         double distance = Math.sqrt(Math.pow(rcv.x - x, 2) + Math.pow(rcv.y - y, 2));
         return Math.sqrt(distance) * energy;
+    }
+
+    public void update() {
+        lifetimeStart++;
+        if (!alive) {
+            lifetimeEnd++;
+        }
+    }
+
+    public boolean isAlive() {
+        return alive;
+    }
+
+    public int getLifetimeStart() {
+        return lifetimeStart;
+    }
+
+    public int getLifetimeEnd() {
+        return lifetimeEnd;
     }
 }

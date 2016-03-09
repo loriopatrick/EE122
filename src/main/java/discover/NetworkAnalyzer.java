@@ -2,37 +2,47 @@ package discover;
 
 import models.Grid;
 import models.Receiver;
+import models.Signal;
 import models.SignalEngine;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author plorio
  */
 public abstract class NetworkAnalyzer {
     private final Receiver[] receivers;
-    private final float[] signals;
+    private final float[] rcvSignals;
 
-    private final Grid grid;
+    private final List<Signal> signals;
+
     private final SignalEngine engine;
 
     public NetworkAnalyzer(Receiver[] receivers) {
         this.receivers = receivers;
-        signals = new float[receivers.length];
+        rcvSignals = new float[receivers.length];
+        signals = new ArrayList<>();
 
-        grid = new Grid();
+        Grid grid = new Grid();
         for (int i = 0; i < receivers.length; i++) {
             grid.addReceiver(receivers[i]);
-            signals[i] = receivers[i].signal;
+            rcvSignals[i] = receivers[i].signal;
         }
         engine = new SignalEngine();
+    }
+
+    public void addTimedSignal(float x, float y, float energy, float time) {
+
     }
 
     public void update() {
         // engine.update();
 
         for (int i = 0; i < receivers.length; i++) {
-            if (receivers[i].signal != signals[i]) {
-                change(receivers[i], signals[i], receivers[i].signal);
-                signals[i] = receivers[i].signal;
+            if (receivers[i].signal != rcvSignals[i]) {
+                change(receivers[i], rcvSignals[i], receivers[i].signal);
+                rcvSignals[i] = receivers[i].signal;
             }
         }
     }
