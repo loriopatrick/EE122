@@ -20,4 +20,8 @@ public class Grid {
             return dist >= start && dist < end;
         }).collect(Collectors.toList());
     }
+
+    public void addReceiver(Receiver rcv) {
+        receivers.add(rcv);
+    }
 }
