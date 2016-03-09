@@ -3,5 +3,5 @@ package models;
 /**
  * @author plorio
  */
-public class Burst {
+public class Signal {
 }

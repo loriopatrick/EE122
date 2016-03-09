@@ -3,5 +3,5 @@ package models;
 /**
  * @author plorio
  */
-public class BurstEngine {
+public class Receiver {
 }

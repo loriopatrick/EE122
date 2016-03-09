@@ -3,5 +3,5 @@ package models;
 /**
  * @author plorio
  */
-public class Point {
+public class SignalEngine {
 }
