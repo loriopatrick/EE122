@@ -7,42 +7,37 @@ import java.util.List;
  * @author plorio
  */
 public class SignalEngine {
-
-    private Grid g;
+    private final Grid grid;
+    private final List<Signal> signals;
     private int ticks;
-    private List<Signal> signals;
 
-    public SignalEngine(Grid grid){
-        this.g = grid;
-        this.ticks=0;
+    public SignalEngine(Grid grid) {
+        this.grid = grid;
+        this.ticks = 0;
         this.signals = new ArrayList<>();
     }
 
-    public void update(){
-        this.ticks++;
-        for(int i=0; i<this.signals.size(); i++){
-            Signal s = this.signals.get(i);
-            List<Receiver> oldReceivers = this.g.radialQuery(s.x,s.y,s.getLifetimeStart(),s.getLifetimeEnd());
-            s.update();
-            signals.set(i,s);
-            List<Receiver> newReceivers = this.g.radialQuery(s.x,s.y,s.getLifetimeStart(),s.getLifetimeEnd());
-            for(int j=0; j<newReceivers.size(); j++){
-                Receiver rcv = newReceivers.get(i);
-                rcv.signal+=s.getStrength(rcv);
+    public void update() {
+        ticks++;
+        for (Signal signal : signals) {
+            List<Receiver> oldReceivers = this.grid.radialQuery(signal.x, signal.y, signal.getLifetimeStart(), signal.getLifetimeEnd());
+            signal.update();
+            List<Receiver> newReceivers = this.grid.radialQuery(signal.x, signal.y, signal.getLifetimeStart(), signal.getLifetimeEnd());
+            for (Receiver rcv : newReceivers) {
+                rcv.signal += signal.getStrength(rcv);
             }
-            for(int j=0; j<oldReceivers.size(); j++){
-                Receiver rcv = oldReceivers.get(i);
-                rcv.signal-=s.getStrength(rcv);
+            for (Receiver rcv : oldReceivers) {
+                rcv.signal -= signal.getStrength(rcv);
             }
         }
     }
 
-    public void addSignal(Signal s){
-        this.signals.add(s);
+    public void addSignal(Signal s) {
+        signals.add(s);
     }
 
-    public int getTicks(){
-        return this.ticks;
+    public int getTicks() {
+        return ticks;
     }
 }
 
