@@ -29,7 +29,7 @@ public abstract class NetworkAnalyzer {
             grid.addReceiver(receivers[i]);
             rcvSignals[i] = receivers[i].signal;
         }
-        engine = new SignalEngine();
+        engine = new SignalEngine(grid);
     }
 
     public void addTimedSignal(float x, float y, float energy, float time) {
