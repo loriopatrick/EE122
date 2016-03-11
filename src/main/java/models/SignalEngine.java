@@ -20,14 +20,28 @@ public class SignalEngine {
     public void update() {
         ticks++;
         for (Signal signal : signals) {
-            List<Receiver> oldReceivers = this.grid.radialQuery(signal.x, signal.y, signal.getLifetimeStart(), signal.getLifetimeEnd());
+            int originalStartLifetime = signal.getLifetimeStart();
+            int originalEndLifetime = signal.getLifetimeEnd();
             signal.update();
-            List<Receiver> newReceivers = this.grid.radialQuery(signal.x, signal.y, signal.getLifetimeStart(), signal.getLifetimeEnd());
-            for (Receiver rcv : newReceivers) {
-                rcv.signal += signal.getStrength(rcv);
+
+            List<Receiver> receiversNoLongerInRange = grid.radialQuery(
+                    signal.x, signal.y,
+                    signal.getPropagationDistance(originalEndLifetime),
+                    signal.getPropagationDistance(signal.getLifetimeEnd())
+            );
+
+            List<Receiver> receiversNowInRange = grid.radialQuery(
+                    signal.x, signal.y,
+                    signal.getPropagationDistance(originalStartLifetime),
+                    signal.getPropagationDistance(signal.getLifetimeStart())
+            );
+
+            for (Receiver receiver : receiversNoLongerInRange) {
+                receiver.signal -= signal.getStrength(receiver);
             }
-            for (Receiver rcv : oldReceivers) {
-                rcv.signal -= signal.getStrength(rcv);
+
+            for (Receiver receiver : receiversNowInRange) {
+                receiver.signal += signal.getStrength(receiver);
             }
         }
     }

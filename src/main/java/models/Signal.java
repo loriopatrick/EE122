@@ -18,6 +18,10 @@ public class Signal {
     private int lifetimeStart; // Time since the signal first started
     private int lifetimeEnd; // Time since the signal is no longer alive
 
+    public double getPropagationDistance(int ticks) {
+        return ticks * 10.0;
+    }
+
     public double getStrength(Receiver rcv) {
         double distance = Math.sqrt(Math.pow(rcv.x - x, 2) + Math.pow(rcv.y - y, 2));
         return Math.sqrt(distance) * energy;
