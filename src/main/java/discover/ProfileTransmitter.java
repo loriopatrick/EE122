@@ -1,15 +1,17 @@
 package discover;
 
-import models.Receiver;
+import engine.Receiver;
 
 /**
  * @author plorio
  */
 public class ProfileTransmitter {
+    private final long ticksPerSecond;
     private final Receiver[] receivers;
     private final Analyzer analyzer;
 
-    public ProfileTransmitter(Receiver[] receivers) {
+    public ProfileTransmitter(long ticksPerSecond, Receiver[] receivers) {
+        this.ticksPerSecond = ticksPerSecond;
         this.receivers = receivers;
         this.analyzer = new Analyzer();
     }
@@ -32,7 +34,7 @@ public class ProfileTransmitter {
 
     private class Analyzer extends NetworkAnalyzer {
         public Analyzer() {
-            super(receivers);
+            super(ticksPerSecond, receivers);
         }
 
         @Override

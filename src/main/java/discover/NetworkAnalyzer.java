@@ -1,9 +1,9 @@
 package discover;
 
-import models.Grid;
-import models.Receiver;
-import models.Signal;
-import models.SignalEngine;
+import engine.Grid;
+import engine.Receiver;
+import engine.Signal;
+import engine.SignalEngine;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +19,7 @@ public abstract class NetworkAnalyzer {
 
     private final SignalEngine engine;
 
-    public NetworkAnalyzer(Receiver[] receivers) {
+    public NetworkAnalyzer(long ticksPerSecond, Receiver[] receivers) {
         this.receivers = receivers;
         rcvSignals = new float[receivers.length];
         signals = new ArrayList<>();
@@ -27,9 +27,9 @@ public abstract class NetworkAnalyzer {
         Grid grid = new Grid();
         for (int i = 0; i < receivers.length; i++) {
             grid.addReceiver(receivers[i]);
-            rcvSignals[i] = receivers[i].signal;
+            rcvSignals[i] = receivers[i].getSignal();
         }
-        engine = new SignalEngine(grid);
+        engine = new SignalEngine(ticksPerSecond, grid);
     }
 
     public void addTimedSignal(float x, float y, float energy, float time) {
@@ -40,9 +40,9 @@ public abstract class NetworkAnalyzer {
         // engine.update();
 
         for (int i = 0; i < receivers.length; i++) {
-            if (receivers[i].signal != rcvSignals[i]) {
-                change(receivers[i], rcvSignals[i], receivers[i].signal);
-                rcvSignals[i] = receivers[i].signal;
+            if (receivers[i].getSignal() != rcvSignals[i]) {
+                change(receivers[i], rcvSignals[i], receivers[i].getSignal());
+                rcvSignals[i] = receivers[i].getSignal();
             }
         }
     }
