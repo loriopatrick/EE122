@@ -2,9 +2,6 @@ package engine;
 
 import org.junit.Assert;
 
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * @author plorio
  */
@@ -12,15 +9,15 @@ public class SignalEngineTest {
 
     @org.junit.Test
     public void testUpdate() throws Exception {
-        Grid grid = new Grid();
-        SignalEngine engine = new SignalEngine(1, grid);
+        Receiver[] receivers = {
+                new Receiver(MathUtil.inMeters(1), MathUtil.inMeters(-1)), // @ 1.4 seconds
+                new Receiver(MathUtil.inMeters(-3), MathUtil.inMeters(3)), // @ 4.24 seconds
+                new Receiver(MathUtil.inMeters(4.5), MathUtil.inMeters(4.5)), // @ 5.65 seconds
+                new Receiver(MathUtil.inMeters(-5), MathUtil.inMeters(-5)) // @ 7.071 seconds
+        };
 
-        List<Receiver> receivers = Arrays.asList(
-                grid.addReceiver(new Receiver(MathUtil.inMeters(1), MathUtil.inMeters(-1))), // @ 1.4 seconds
-                grid.addReceiver(new Receiver(MathUtil.inMeters(-3), MathUtil.inMeters(3))), // @ 4.24 seconds
-                grid.addReceiver(new Receiver(MathUtil.inMeters(4.5), MathUtil.inMeters(4.5))), // @ 5.65 seconds
-                grid.addReceiver(new Receiver(MathUtil.inMeters(-5), MathUtil.inMeters(-5))) // @ 7.071 seconds
-        );
+        Grid grid = new Grid(receivers);
+        SignalEngine engine = new SignalEngine(1, grid);
 
         Signal signal = engine.addSignal(new Signal(MathUtil.inMeters(1), 0, 0, MathUtil.inJoules(10000)));
 
@@ -65,10 +62,10 @@ public class SignalEngineTest {
         assertSignals("signal should have left first three receivers", receivers, 0, 0, 0, 200);
     }
 
-    public void assertSignals(String message, List<Receiver> receivers, long... signals) {
-        long[] actual = new long[receivers.size()];
-        for (int i = 0; i < receivers.size(); i++) {
-            actual[i] = receivers.get(i).getSignal() * 1000L / Constants.JOULE_ACCURACY;
+    public void assertSignals(String message, Receiver[] receivers, long... signals) {
+        long[] actual = new long[receivers.length];
+        for (int i = 0; i < receivers.length; i++) {
+            actual[i] = receivers[i].getSignal() * 1000L / Constants.JOULE_ACCURACY;
         }
         Assert.assertArrayEquals(message, signals, actual);
     }

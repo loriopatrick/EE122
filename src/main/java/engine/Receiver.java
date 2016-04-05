@@ -31,4 +31,12 @@ public class Receiver implements Position {
     public void updateSignal(long delta) {
         signal += delta;
     }
+
+    @Override
+    public String toString() {
+        return "Receiver{" +
+                "x=" + x +
+                ", y=" + y +
+                '}';
+    }
 }

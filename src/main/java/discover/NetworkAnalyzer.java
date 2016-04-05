@@ -1,51 +1,44 @@
 package discover;
 
-import engine.Grid;
 import engine.Receiver;
-import engine.Signal;
 import engine.SignalEngine;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author plorio
  */
-public abstract class NetworkAnalyzer {
-    private final Receiver[] receivers;
-    private final float[] rcvSignals;
-
-    private final List<Signal> signals;
-
+public class NetworkAnalyzer {
     private final SignalEngine engine;
+    private final Listener listener;
+    private final Receiver[] receivers;
+    private final long[] lastSignals;
 
-    public NetworkAnalyzer(long ticksPerSecond, Receiver[] receivers) {
-        this.receivers = receivers;
-        rcvSignals = new float[receivers.length];
-        signals = new ArrayList<>();
+    public NetworkAnalyzer(SignalEngine engine, Listener listener) {
+        this.engine = engine;
+        this.listener = listener;
+        receivers = engine.getGrid().getReceivers();
+        lastSignals = new long[receivers.length];
 
-        Grid grid = new Grid();
         for (int i = 0; i < receivers.length; i++) {
-            grid.addReceiver(receivers[i]);
-            rcvSignals[i] = receivers[i].getSignal();
+            lastSignals[i] = receivers[i].getSignal();
         }
-        engine = new SignalEngine(ticksPerSecond, grid);
-    }
-
-    public void addTimedSignal(float x, float y, float energy, float time) {
-
     }
 
     public void update() {
-        // engine.update();
-
+        engine.update();
         for (int i = 0; i < receivers.length; i++) {
-            if (receivers[i].getSignal() != rcvSignals[i]) {
-                change(receivers[i], rcvSignals[i], receivers[i].getSignal());
-                rcvSignals[i] = receivers[i].getSignal();
+            long signal = receivers[i].getSignal();
+            if (signal != lastSignals[i]) {
+                listener.handleChange(new ChangeEvent(
+                        receivers[i],
+                        signal - lastSignals[i],
+                        engine.getCurrentTick()
+                ));
+                lastSignals[i] = signal;
             }
         }
     }
 
-    public abstract void change(Receiver receiver, float before, float after);
+    public interface Listener {
+        void handleChange(ChangeEvent event);
+    }
 }

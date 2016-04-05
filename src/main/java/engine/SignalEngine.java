@@ -48,6 +48,16 @@ public class SignalEngine {
         }
     }
 
+    public int activeSignals() {
+        int count = 0;
+        for (Signal signal : signals) {
+            if (signal.isAlive()) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     /**
      * @param speed in #Constants.METERS_ACCURACY
      * @param ticks in steps
@@ -68,6 +78,10 @@ public class SignalEngine {
 
     public long getCurrentTime() {
         return (currentTick * Constants.SECOND_ACCURACY) / ticksPerSecond;
+    }
+
+    public Grid getGrid() {
+        return grid;
     }
 }
 

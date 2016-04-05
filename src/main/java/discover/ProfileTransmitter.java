@@ -1,51 +1,46 @@
 package discover;
 
 import engine.Receiver;
+import engine.SignalEngine;
 
 /**
  * @author plorio
  */
 public class ProfileTransmitter {
-    private final long ticksPerSecond;
-    private final Receiver[] receivers;
-    private final Analyzer analyzer;
-
-    public ProfileTransmitter(long ticksPerSecond, Receiver[] receivers) {
-        this.ticksPerSecond = ticksPerSecond;
-        this.receivers = receivers;
-        this.analyzer = new Analyzer();
+    public static long[][] Record(SignalEngine engine, int steps) {
+        Receiver[] receivers = engine.getGrid().getReceivers();
+        long[][] powers = new long[receivers.length][steps];
+        for (int i = 0; i < steps; i++) {
+            for (int j = 0; j < receivers.length; ++j) {
+                powers[j][i] = receivers[i].getSignal();
+            }
+            engine.update();
+        }
+        return powers;
     }
 
-    private int step;
-    private float[][] power;
+    public static int Lifetime(SignalEngine engine) {
+        assert (engine.activeSignals() > 0);
+        Receiver[] receivers = engine.getGrid().getReceivers();
+        boolean[] received = new boolean[receivers.length];
 
-    public float[][] profile(float x, float y, float energy, int steps, int signalLifetime) {
-        power = new float[receivers.length][];
-        for (int i = 0; i < power.length; i++) {
-            power[i] = new float[steps];
-        }
-
-        analyzer.addTimedSignal(x, y, energy, signalLifetime);
-        for (step = 0; step < power.length; step++) {
-            analyzer.update();
-        }
-        return power;
-    }
-
-    private class Analyzer extends NetworkAnalyzer {
-        public Analyzer() {
-            super(ticksPerSecond, receivers);
-        }
-
-        @Override
-        public void change(Receiver rcv, float before, float after) {
-            int idx;
-            for (idx = 0; idx < receivers.length; idx++) {
-                if (receivers[idx] == rcv) {
-                    break;
+        int step = 0;
+        while (true) {
+            boolean done = true;
+            for (int i = 0; i < receivers.length; i++) {
+                if (!received[i]) {
+                    done = false;
+                }
+                if (receivers[i].getSignal() > 0) {
+                    done = false;
+                    received[i] = true;
                 }
             }
-            power[idx][step] = after;
+            if (done) {
+                return step;
+            }
+            step++;
+            engine.update();
         }
     }
 }

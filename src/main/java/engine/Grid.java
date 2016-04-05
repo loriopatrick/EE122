@@ -1,6 +1,6 @@
 package engine;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -8,10 +8,10 @@ import java.util.stream.Collectors;
  * @author plorio
  */
 public class Grid {
-    private List<Receiver> receivers;
+    private final Receiver[] receivers;
 
-    public Grid() {
-        receivers = new ArrayList<>();
+    public Grid(Receiver[] receivers) {
+        this.receivers = receivers;
     }
 
     /***
@@ -29,15 +29,14 @@ public class Grid {
         final long startSquared = MathUtil.square(start);
         final long endSquared = MathUtil.square(end);
 
-        return receivers.stream().filter((rcv) -> {
+        return Arrays.asList(receivers).stream().filter((rcv) -> {
             long distSquared = MathUtil.square(center.getX() - rcv.getX()) +
                     MathUtil.square(center.getY() - rcv.getY());
             return distSquared >= startSquared && distSquared < endSquared;
         }).collect(Collectors.toList());
     }
 
-    public Receiver addReceiver(Receiver rcv) {
-        receivers.add(rcv);
-        return rcv;
+    public Receiver[] getReceivers() {
+        return receivers;
     }
 }
