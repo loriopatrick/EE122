@@ -26,13 +26,17 @@ public class Main {
         };
 
         SignalEngine engine = new SignalEngine(10, new Grid(receivers));
+        for (Transmitter transmitter : transmitters) {
+            transmitter.setActive(true);
+        }
 
-        NetworkAnalyzer networkAnalyzer = new NetworkAnalyzer(engine, System.out::println);
-        for (int i = 0; i < 1000000; i++) {
+        NetworkAnalyzer networkAnalyzer = new NetworkAnalyzer(engine, (event) -> {
+            System.out.println("GOT EVENT");
+            System.out.println(event);
+        });
+
+        for (int i = 0; i < 100; i++) {
             for (Transmitter transmitter : transmitters) {
-                if (Math.random() > 0.9) {
-                    transmitter.setActive(!transmitter.isActive());
-                }
                 transmitter.update(engine);
             }
             networkAnalyzer.update();
