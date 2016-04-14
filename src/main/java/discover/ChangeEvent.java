@@ -8,11 +8,13 @@ import engine.Receiver;
 public class ChangeEvent {
     private final Receiver receiver;
     private final long delta;
+    private final long finalPower;
     private final long tick;
 
-    public ChangeEvent(Receiver receiver, long delta, long tick) {
+    public ChangeEvent(Receiver receiver, long delta, long finalPower, long tick) {
         this.receiver = receiver;
         this.delta = delta;
+        this.finalPower = finalPower;
         this.tick = tick;
     }
 
@@ -24,6 +26,10 @@ public class ChangeEvent {
         return delta;
     }
 
+    public long getFinalPower() {
+        return finalPower;
+    }
+
     public long getTick() {
         return tick;
     }
@@ -33,6 +39,7 @@ public class ChangeEvent {
         return "ChangeEvent{" +
                 "receiver=" + receiver +
                 ", delta=" + delta +
+                ", finalPower=" + finalPower +
                 ", tick=" + tick +
                 '}';
     }

@@ -31,6 +31,7 @@ public class NetworkAnalyzer {
                 listener.handleChange(new ChangeEvent(
                         receivers[i],
                         signal - lastSignals[i],
+                        signal,
                         engine.getCurrentTick()
                 ));
                 lastSignals[i] = signal;
