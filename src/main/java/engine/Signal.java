@@ -75,11 +75,11 @@ public class Signal implements Position {
 
     @Override
     public long getX() {
-        return 0;
+        return x;
     }
 
     @Override
     public long getY() {
-        return 0;
+        return y;
     }
 }

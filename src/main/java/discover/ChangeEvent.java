@@ -5,7 +5,7 @@ import engine.Receiver;
 /**
  * @author plorio
  */
-public class ChangeEvent {
+public class ChangeEvent implements Comparable<ChangeEvent> {
     private final Receiver receiver;
     private final long delta;
     private final long finalPower;
@@ -42,5 +42,10 @@ public class ChangeEvent {
                 ", finalPower=" + finalPower +
                 ", tick=" + tick +
                 '}';
+    }
+
+    @Override
+    public int compareTo(ChangeEvent o) {
+        return Long.compare(tick, o.tick);
     }
 }

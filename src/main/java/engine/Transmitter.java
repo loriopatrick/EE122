@@ -55,4 +55,14 @@ public class Transmitter implements Position {
     public long getY() {
         return y;
     }
+
+    @Override
+    public String toString() {
+        return "Transmitter{" +
+                "propSpeed=" + propSpeed +
+                ", strength=" + strength +
+                ", x=" + x +
+                ", y=" + y +
+                '}';
+    }
 }
