@@ -42,6 +42,16 @@ public class Main {
                 }
             }
         }
+
+        for (int i = 0; i < 5000; i++) {
+            engine.update();
+            List<ChangeEvent> changes = analyzer.getChanges();
+            if (changes.size() > 0) {
+                if (!decoder.processEvents(engine.getCurrentTick(), changes)) {
+                    throw new RuntimeException("BAD AND SAD");
+                }
+            }
+        }
     }
 
     public static TransmitterProfile[] buildProfiles() {
