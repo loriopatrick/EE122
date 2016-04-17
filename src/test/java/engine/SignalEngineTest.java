@@ -10,10 +10,10 @@ public class SignalEngineTest {
     @org.junit.Test
     public void testUpdate() throws Exception {
         Receiver[] receivers = {
-                new Receiver(MathUtil.inMeters(1), MathUtil.inMeters(-1)), // @ 1.4 seconds
-                new Receiver(MathUtil.inMeters(-3), MathUtil.inMeters(3)), // @ 4.24 seconds
-                new Receiver(MathUtil.inMeters(4.5), MathUtil.inMeters(4.5)), // @ 5.65 seconds
-                new Receiver(MathUtil.inMeters(-5), MathUtil.inMeters(-5)) // @ 7.071 seconds
+                new Receiver(0, MathUtil.inMeters(1), MathUtil.inMeters(-1)), // @ 1.4 seconds
+                new Receiver(1, MathUtil.inMeters(-3), MathUtil.inMeters(3)), // @ 4.24 seconds
+                new Receiver(2, MathUtil.inMeters(4.5), MathUtil.inMeters(4.5)), // @ 5.65 seconds
+                new Receiver(3, MathUtil.inMeters(-5), MathUtil.inMeters(-5)) // @ 7.071 seconds
         };
 
         Grid grid = new Grid(receivers);

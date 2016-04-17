@@ -1,22 +1,20 @@
 package discover;
 
-import engine.Transmitter;
-
 /**
  * @author plorio
  */
 public class SignalEvent {
-    private final Transmitter transmitter;
+    private final int transmitter;
     private final boolean on;
     private final long tick;
 
-    public SignalEvent(Transmitter transmitter, boolean on, long tick) {
+    public SignalEvent(int transmitter, boolean on, long tick) {
         this.transmitter = transmitter;
         this.on = on;
         this.tick = tick;
     }
 
-    public Transmitter getTransmitter() {
+    public int getTransmitter() {
         return transmitter;
     }
 

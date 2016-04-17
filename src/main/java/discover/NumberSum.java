@@ -20,7 +20,7 @@ public class NumberSum<T> {
     public List<List<T>> options(long targetSum) {
         ArrayList<List<T>> lists = new ArrayList<>();
 
-        int combinations = 2 << items.size();
+        int combinations = 2 << (items.size() - 1);
         for (int i = 1; i <= combinations; i++) {
             long sum = 0;
             int count = 0;

@@ -1,25 +1,71 @@
-import discover.ChangeEvent;
-import discover.NetworkAnalyzer;
-import discover.NumberSum;
-import discover.TransmitterProfile;
+import discover.*;
 import engine.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 /**
  * @author plorio
  */
 public class Main {
     public static void main(String[] args) {
-        Receiver[] receivers = {
-                new Receiver(-MathUtil.inMeters(50), MathUtil.inMeters(0)),
-                new Receiver(MathUtil.inMeters(30), MathUtil.inMeters(30)),
-                new Receiver(MathUtil.inMeters(30), MathUtil.inMeters(-30))
-        };
+        Receiver[] receivers = buildReceivers();
+        Transmitter[] transmitters = buildTransmitters();
+        TransmitterProfile[] profiles = buildProfiles();
 
-        Transmitter[] transmitters = {
+        SignalEngine engine = new SignalEngine(100, new Grid(receivers));
+
+        NetworkAnalyzer analyzer = new NetworkAnalyzer(engine);
+        engine = new SignalEngine(100, new Grid(receivers));
+
+        Option decoder = new Option(profiles);
+
+        Random rand = new Random(3214);
+
+        for (int i = 0; i < 600; i++) {
+            for (int j = 0; j < transmitters.length; j++) {
+                Transmitter transmitter = transmitters[j];
+                if (rand.nextDouble() > 0.9 && i % 5 == 0) {
+                    transmitter.setActive(!transmitter.isActive());
+                    System.out.println("SET " + new SignalEvent(j, transmitter.isActive(), engine.getCurrentTick()));
+                }
+                transmitter.update(engine);
+            }
+
+            engine.update();
+            List<ChangeEvent> changes = analyzer.getChanges();
+            if (changes.size() > 0) {
+                if (!decoder.processEvents(engine.getCurrentTick(), changes)) {
+                    throw new RuntimeException("BAD AND SAD");
+                }
+            }
+        }
+    }
+
+    public static TransmitterProfile[] buildProfiles() {
+        SignalEngine engine = new SignalEngine(100, new Grid(buildReceivers()));
+
+        Transmitter[] transmitters = buildTransmitters();
+        TransmitterProfile[] profiles = new TransmitterProfile[transmitters.length];
+        for (int i = 0; i < profiles.length; i++) {
+            profiles[i] = new TransmitterProfile(getEffect(engine, transmitters[i]));
+        }
+
+        return profiles;
+    }
+
+    public static Receiver[] buildReceivers() {
+        return new Receiver[]{
+                new Receiver(0, -MathUtil.inMeters(50), MathUtil.inMeters(0)),
+                new Receiver(1, MathUtil.inMeters(30), MathUtil.inMeters(30)),
+                new Receiver(2, MathUtil.inMeters(30), MathUtil.inMeters(-30))
+        };
+    }
+
+    public static Transmitter[] buildTransmitters() {
+        return new Transmitter[]{
                 new Transmitter(MathUtil.inSeconds(10), MathUtil.inJoules(50),
                         MathUtil.inMeters(5), MathUtil.inMeters(5)),
                 new Transmitter(MathUtil.inSeconds(10), MathUtil.inJoules(10),
@@ -31,91 +77,6 @@ public class Main {
                 new Transmitter(MathUtil.inSeconds(10), MathUtil.inJoules(60),
                         MathUtil.inMeters(0), MathUtil.inMeters(0)),
         };
-
-        SignalEngine engine = new SignalEngine(100, new Grid(receivers));
-
-        TransmitterProfile[] profiles = new TransmitterProfile[transmitters.length];
-        for (int i = 0; i < profiles.length; i++) {
-            profiles[i] = new TransmitterProfile(getEffect(engine, transmitters[i]));
-            System.out.println(i + " :: " + profiles[i].getEvents());
-        }
-
-        NetworkAnalyzer analyzer = new NetworkAnalyzer(engine);
-        for (Transmitter transmitter : transmitters) {
-            transmitter.setActive(false);
-        }
-
-        for (Receiver receiver : receivers) {
-            receiver.updateSignal(-receiver.getSignal());
-        }
-
-        engine = new SignalEngine(100, new Grid(receivers));
-
-
-        NumberSum<Integer> sum = new NumberSum<>();
-        sum.add(5, 5);
-        sum.add(-3, -3);
-        sum.add(2, 2);
-        sum.add(-7, -7);
-        sum.add(8, 8);
-        sum.add(12, 12);
-        sum.add(7, 7);
-
-        List<List<Integer>> options = sum.options(12);
-        System.out.println(options);
-
-        System.exit(0);
-
-
-        for (int i = 0; i < 600; i++) {
-            for (Transmitter transmitter : transmitters) {
-                if (Math.random() > 0.9 && i % 5 == 0) {
-                    transmitter.setActive(!transmitter.isActive());
-                }
-                transmitter.update(engine);
-            }
-
-            engine.update();
-            List<ChangeEvent> changes = analyzer.getChanges();
-            if (changes.size() > 0) {
-                System.out.println("TICK: " + engine.getCurrentTick());
-                changes.forEach(System.out::println);
-            }
-        }
-
-        System.exit(0);
-
-        boolean[] decode = new boolean[transmitters.length];
-//        TreeMap<Long, >
-
-        boolean run = true;
-//        while (run) {
-//            engine.update();
-//            List<ChangeEvent> changes = analyzer.getChanges();
-//        }
-
-        /*
-        (event) -> {
-            for (TransmitterProfile profile : profiles) {
-                if (profile.getFirstReceiver() == event.getReceiver()) {
-                    for (ChangeEvent changeEvent : profile.getEvents()) {
-                        eventLoop.onTick(engine.getCurrentTick() + changeEvent.getTick(), ()->{
-
-                        });
-                    }
-                }
-            }
-        }
-         */
-
-        for (int i = 0; i < 100000; i++) {
-            for (Transmitter transmitter : transmitters) {
-                transmitter.setActive(Math.random() > 0.5);
-                transmitter.update(engine);
-            }
-            engine.update();
-            analyzer.getChanges();
-        }
     }
 
     public static List<ChangeEvent> getEffect(SignalEngine engine, Transmitter transmitter) {
