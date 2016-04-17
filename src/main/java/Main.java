@@ -1,12 +1,12 @@
 import discover.ChangeEvent;
 import discover.NetworkAnalyzer;
+import discover.NumberSum;
 import discover.TransmitterProfile;
 import engine.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.TreeMap;
 
 /**
  * @author plorio
@@ -50,6 +50,22 @@ public class Main {
         }
 
         engine = new SignalEngine(100, new Grid(receivers));
+
+
+        NumberSum<Integer> sum = new NumberSum<>();
+        sum.add(5, 5);
+        sum.add(-3, -3);
+        sum.add(2, 2);
+        sum.add(-7, -7);
+        sum.add(8, 8);
+        sum.add(12, 12);
+        sum.add(7, 7);
+
+        List<List<Integer>> options = sum.options(12);
+        System.out.println(options);
+
+        System.exit(0);
+
 
         for (int i = 0; i < 600; i++) {
             for (Transmitter transmitter : transmitters) {

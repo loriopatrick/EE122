@@ -54,6 +54,21 @@ public class Option {
                 events = cleanedEvents;
             }
         }
+
+
+
+        for (ChangeEvent event : events) {
+            NumberSum<TransmitterProfile> profileOptions = new NumberSum<>();
+            for (int i = 0; i < profiles.length; i++) {
+                if (profiles[i].getFirstReceiver() == event.getReceiver()) {
+                    int scale = latestStates[i] ? -1 : 1;
+                    profileOptions.add(scale * profiles[i].getEvents().get(0).getDelta(), profiles[i]);
+                }
+            }
+
+            List<List<TransmitterProfile>> options = profileOptions.options(event.getDelta());
+
+        }
     }
 
     private static class ActiveProfile {
