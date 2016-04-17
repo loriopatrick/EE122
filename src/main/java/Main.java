@@ -1,10 +1,12 @@
 import discover.ChangeEvent;
 import discover.NetworkAnalyzer;
+import discover.TransmitterProfile;
 import engine.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.TreeMap;
 
 /**
  * @author plorio
@@ -32,9 +34,71 @@ public class Main {
 
         SignalEngine engine = new SignalEngine(100, new Grid(receivers));
 
+        TransmitterProfile[] profiles = new TransmitterProfile[transmitters.length];
+        for (int i = 0; i < profiles.length; i++) {
+            profiles[i] = new TransmitterProfile(getEffect(engine, transmitters[i]));
+            System.out.println(i + " :: " + profiles[i].getEvents());
+        }
+
+        NetworkAnalyzer analyzer = new NetworkAnalyzer(engine);
         for (Transmitter transmitter : transmitters) {
-            System.out.println(transmitter);
-            System.out.println(getEffect(engine, transmitter));
+            transmitter.setActive(false);
+        }
+
+        for (Receiver receiver : receivers) {
+            receiver.updateSignal(-receiver.getSignal());
+        }
+
+        engine = new SignalEngine(100, new Grid(receivers));
+
+        for (int i = 0; i < 600; i++) {
+            for (Transmitter transmitter : transmitters) {
+                if (Math.random() > 0.9 && i % 5 == 0) {
+                    transmitter.setActive(!transmitter.isActive());
+                }
+                transmitter.update(engine);
+            }
+
+            engine.update();
+            List<ChangeEvent> changes = analyzer.getChanges();
+            if (changes.size() > 0) {
+                System.out.println("TICK: " + engine.getCurrentTick());
+                changes.forEach(System.out::println);
+            }
+        }
+
+        System.exit(0);
+
+        boolean[] decode = new boolean[transmitters.length];
+//        TreeMap<Long, >
+
+        boolean run = true;
+//        while (run) {
+//            engine.update();
+//            List<ChangeEvent> changes = analyzer.getChanges();
+//        }
+
+        /*
+        (event) -> {
+            for (TransmitterProfile profile : profiles) {
+                if (profile.getFirstReceiver() == event.getReceiver()) {
+                    for (ChangeEvent changeEvent : profile.getEvents()) {
+                        eventLoop.onTick(engine.getCurrentTick() + changeEvent.getTick(), ()->{
+
+                        });
+                    }
+                }
+            }
+        }
+         */
+
+        for (int i = 0; i < 100000; i++) {
+            for (Transmitter transmitter : transmitters) {
+                transmitter.setActive(Math.random() > 0.5);
+                transmitter.update(engine);
+            }
+            engine.update();
+            analyzer.getChanges();
         }
     }
 
@@ -42,25 +106,21 @@ public class Main {
         int receivers = engine.getGrid().getReceivers().length;
         List<ChangeEvent> changeEvents = new ArrayList<>(receivers);
 
+        long startTick = engine.getCurrentTick();
+
         // collect events
-        NetworkAnalyzer networkAnalyzer = new NetworkAnalyzer(engine, changeEvents::add);
+        NetworkAnalyzer networkAnalyzer = new NetworkAnalyzer(engine);
         transmitter.setActive(true);
         while (changeEvents.size() < receivers) {
             transmitter.update(engine);
-            networkAnalyzer.update();
-        }
-
-        long minTick = changeEvents.get(0).getTick();
-        for (ChangeEvent changeEvent : changeEvents) {
-            if (changeEvent.getTick() < minTick) {
-                minTick = changeEvent.getTick();
-            }
+            engine.update();
+            changeEvents.addAll(networkAnalyzer.getChanges());
         }
 
         for (int i = 0; i < changeEvents.size(); i++) {
             ChangeEvent evt = changeEvents.get(i);
             changeEvents.set(i, new ChangeEvent(evt.getReceiver(), evt.getDelta(),
-                    evt.getDelta(), evt.getTick() - minTick));
+                    evt.getDelta(), evt.getTick() - startTick));
         }
 
         Collections.sort(changeEvents);

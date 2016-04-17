@@ -3,18 +3,19 @@ package discover;
 import engine.Receiver;
 import engine.SignalEngine;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author plorio
  */
 public class NetworkAnalyzer {
     private final SignalEngine engine;
-    private final Listener listener;
     private final Receiver[] receivers;
     private final long[] lastSignals;
 
-    public NetworkAnalyzer(SignalEngine engine, Listener listener) {
+    public NetworkAnalyzer(SignalEngine engine) {
         this.engine = engine;
-        this.listener = listener;
         receivers = engine.getGrid().getReceivers();
         lastSignals = new long[receivers.length];
 
@@ -23,12 +24,12 @@ public class NetworkAnalyzer {
         }
     }
 
-    public void update() {
-        engine.update();
+    public List<ChangeEvent> getChanges() {
+        ArrayList<ChangeEvent> events = new ArrayList<>();
         for (int i = 0; i < receivers.length; i++) {
             long signal = receivers[i].getSignal();
             if (signal != lastSignals[i]) {
-                listener.handleChange(new ChangeEvent(
+                events.add(new ChangeEvent(
                         receivers[i],
                         signal - lastSignals[i],
                         signal,
@@ -37,9 +38,6 @@ public class NetworkAnalyzer {
                 lastSignals[i] = signal;
             }
         }
-    }
-
-    public interface Listener {
-        void handleChange(ChangeEvent event);
+        return events;
     }
 }

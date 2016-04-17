@@ -82,4 +82,14 @@ public class Signal implements Position {
     public long getY() {
         return y;
     }
+
+    @Override
+    public String toString() {
+        return "Signal{" +
+                "x=" + x +
+                ", y=" + y +
+                ", energy=" + energy +
+                ", alive=" + alive +
+                '}';
+    }
 }
