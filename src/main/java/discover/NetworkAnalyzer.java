@@ -3,9 +3,6 @@ package discover;
 import engine.Receiver;
 import engine.SignalEngine;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * @author plorio
  */
@@ -24,12 +21,12 @@ public class NetworkAnalyzer {
         }
     }
 
-    public ChangeEvent[] getChanges() {
-        ChangeEvent[] events = new ChangeEvent[receivers.length];
+    public ReceiverChange[] getChanges() {
+        ReceiverChange[] events = new ReceiverChange[receivers.length];
         for (int i = 0; i < receivers.length; i++) {
             long signal = receivers[i].getSignal();
             if (signal != lastSignals[i]) {
-                events[i] = new ChangeEvent(
+                events[i] = new ReceiverChange(
                         i,
                         signal - lastSignals[i],
                         signal,

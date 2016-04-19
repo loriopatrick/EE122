@@ -1,17 +1,15 @@
 package discover;
 
-import engine.Receiver;
-
 /**
  * @author plorio
  */
-public class ChangeEvent implements Comparable<ChangeEvent> {
+public class ReceiverChange implements Comparable<ReceiverChange> {
     private final int receiver;
     private final long delta;
     private final long finalPower;
     private final long tick;
 
-    public ChangeEvent(int receiver, long delta, long finalPower, long tick) {
+    public ReceiverChange(int receiver, long delta, long finalPower, long tick) {
         this.receiver = receiver;
         this.delta = delta;
         this.finalPower = finalPower;
@@ -36,7 +34,7 @@ public class ChangeEvent implements Comparable<ChangeEvent> {
 
     @Override
     public String toString() {
-        return "ChangeEvent{" +
+        return "ReceiverChange{" +
                 "receiver=" + receiver +
                 ", delta=" + delta +
                 ", finalPower=" + finalPower +
@@ -45,7 +43,7 @@ public class ChangeEvent implements Comparable<ChangeEvent> {
     }
 
     @Override
-    public int compareTo(ChangeEvent o) {
+    public int compareTo(ReceiverChange o) {
         return Long.compare(tick, o.tick);
     }
 }

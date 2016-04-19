@@ -28,14 +28,13 @@ public class Main {
                 Transmitter transmitter = transmitters[j];
                 if (rand.nextDouble() > 0.9) {
                     transmitter.setActive(!transmitter.isActive());
-                    System.out.println("SET " + new SignalEvent(j, transmitter.isActive(), engine.getCurrentTick()));
                 }
                 transmitter.update(engine);
             }
 
             engine.update();
-            ChangeEvent[] changes = analyzer.getChanges();
-            if (!decoder.processEvents(engine.getCurrentTick(), changes)) {
+            ReceiverChange[] changes = analyzer.getChanges();
+            if (!decoder.processChanges(engine.getCurrentTick(), changes)) {
                 throw new RuntimeException("BAD AND SAD");
             }
         }
@@ -45,8 +44,8 @@ public class Main {
             if (engine.getCurrentTick() == 669) {
                 System.out.println("HERE");
             }
-            ChangeEvent[] changes = analyzer.getChanges();
-            if (!decoder.processEvents(engine.getCurrentTick(), changes)) {
+            ReceiverChange[] changes = analyzer.getChanges();
+            if (!decoder.processChanges(engine.getCurrentTick(), changes)) {
                 throw new RuntimeException("BAD AND SAD");
             }
         }
@@ -84,35 +83,41 @@ public class Main {
                         MathUtil.inMeters(0), -MathUtil.inMeters(15)),
                 new Transmitter(MathUtil.inSeconds(10), MathUtil.inJoules(60),
                         MathUtil.inMeters(0), MathUtil.inMeters(-32)),
+                new Transmitter(MathUtil.inSeconds(10), MathUtil.inJoules(5),
+                        MathUtil.inMeters(0), MathUtil.inMeters(2)),
+                new Transmitter(MathUtil.inSeconds(10), MathUtil.inJoules(5),
+                        MathUtil.inMeters(0), MathUtil.inMeters(8)),
+                new Transmitter(MathUtil.inSeconds(10), MathUtil.inJoules(5),
+                        MathUtil.inMeters(0), MathUtil.inMeters(-12)),
         };
     }
 
-    public static List<ChangeEvent> getEffect(SignalEngine engine, Transmitter transmitter) {
+    public static List<ReceiverChange> getEffect(SignalEngine engine, Transmitter transmitter) {
         int receivers = engine.getGrid().getReceivers().length;
-        List<ChangeEvent> changeEvents = new ArrayList<>(receivers);
+        List<ReceiverChange> receiverChanges = new ArrayList<>(receivers);
 
         long startTick = engine.getCurrentTick();
 
         // collect events
         NetworkAnalyzer networkAnalyzer = new NetworkAnalyzer(engine);
         transmitter.setActive(true);
-        while (changeEvents.size() < receivers) {
+        while (receiverChanges.size() < receivers) {
             transmitter.update(engine);
             engine.update();
-            for (ChangeEvent changeEvent : networkAnalyzer.getChanges()) {
-                if (changeEvent != null) {
-                    changeEvents.add(changeEvent);
+            for (ReceiverChange receiverChange : networkAnalyzer.getChanges()) {
+                if (receiverChange != null) {
+                    receiverChanges.add(receiverChange);
                 }
             }
         }
 
-        for (int i = 0; i < changeEvents.size(); i++) {
-            ChangeEvent evt = changeEvents.get(i);
-            changeEvents.set(i, new ChangeEvent(evt.getReceiver(), evt.getDelta(),
+        for (int i = 0; i < receiverChanges.size(); i++) {
+            ReceiverChange evt = receiverChanges.get(i);
+            receiverChanges.set(i, new ReceiverChange(evt.getReceiver(), evt.getDelta(),
                     evt.getDelta(), evt.getTick() - startTick));
         }
 
-        Collections.sort(changeEvents);
-        return changeEvents;
+        Collections.sort(receiverChanges);
+        return receiverChanges;
     }
 }
