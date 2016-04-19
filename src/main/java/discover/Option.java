@@ -73,19 +73,23 @@ public class Option {
             return true;
         }
 
-        // Filter out profiles we've already discovered
+        // Filter out events from profiles we've already discovered
         events = FilterEvents(lastProcessedTick, currentTick, events, activeProfiles);
         if (events == null) {
             return false;
         }
 
-        // Remove old profiles
         activeProfiles.removeIf((p) -> p.isOver(currentTick));
         lastProcessedTick = currentTick;
 
-        if (events.size() > 0) {
+        return computeAndApplyProfiles(currentTick, events);
+    }
+
+    private boolean computeAndApplyProfiles(long tick, List<ChangeEvent> events) {
+        while (events.size() > 0) {
             ChangeEvent event = events.get(0);
 
+            // Add all profiles that started with the event's receiver to the query
             NumberSum<Integer> profileOptions = new NumberSum<>();
             for (int i = 0; i < profiles.length; i++) {
                 if (profiles[i].getFirstReceiver().equals(event.getReceiver())) {
@@ -94,33 +98,41 @@ public class Option {
                 }
             }
 
+            // Determine all possible combinations of profiles that could have created this event
             List<List<Integer>> options = profileOptions.options(event.getDelta());
             if (options.size() == 0) {
                 System.out.println("No possible way to create this event");
                 return false;
             }
 
+            // Apply the only possible combination
             if (options.size() == 1) {
-                List<Integer> activatedProfiles = options.get(0);
+                List<Integer> profileIndices = options.get(0);
 
-                List<ActiveProfile> addedProfiles = activatedProfiles.stream()
-                        .map(idx -> applyProfile(currentTick, idx)).collect(Collectors.toList());
-                events = FilterEvents(currentTick, currentTick, events, addedProfiles);
-                return processEvents(currentTick, events);
-            } else {
-                System.out.println("TANGENT!!" + currentTick);
-                System.exit(0);
+                List<ActiveProfile> addedProfiles = profileIndices.stream()
+                        .map(idx -> applyProfile(tick, idx)).collect(Collectors.toList());
+
+                // clean events with the our new understanding of the system
+                events = FilterEvents(tick, tick, events, addedProfiles);
+                if (events == null) {
+                    return false;
+                }
+            }
+            // Split off into tangents for all combination possibilities
+            else {
                 for (List<Integer> activatedProfiles : options) {
                     Option tangent = new Option(profiles);
                     tangent.activeProfiles.addAll(activeProfiles);
                     System.arraycopy(latestStates, 0, tangent.latestStates, 0, latestStates.length);
-                    tangent.lastProcessedTick = currentTick;
+                    tangent.lastProcessedTick = tick;
 
                     List<ActiveProfile> addedProfiles = activatedProfiles.stream()
-                            .map(idx -> tangent.applyProfile(currentTick, idx)).collect(Collectors.toList());
-                    events = FilterEvents(currentTick, currentTick, events, addedProfiles);
-                    tangent.processEvents(currentTick, events);
-
+                            .map(idx -> tangent.applyProfile(tick, idx)).collect(Collectors.toList());
+                    List<ChangeEvent> tangentEvents = FilterEvents(tick, tick, events, addedProfiles);
+                    if (tangentEvents == null) {
+                        return false;
+                    }
+                    tangent.computeAndApplyProfiles(tick, tangentEvents);
                     tangents.add(tangent);
                 }
             }

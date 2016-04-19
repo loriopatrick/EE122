@@ -22,7 +22,7 @@ public class Main {
 
         Random rand = new Random(3214);
 
-        int last = 60000;
+        int last = 7706;
         for (int i = 0; i < last; i++) {
             for (int j = 0; j < transmitters.length; j++) {
                 Transmitter transmitter = transmitters[j];
