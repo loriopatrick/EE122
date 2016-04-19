@@ -171,6 +171,8 @@ public class OptionDecoder {
                 continue;
             }
 
+            // todo make sure all events that should be run are ran
+
             long scale = activeProfile.invert ? -1 : 1;
             List<ChangeEvent> changeEvents = activeProfile.getStage(tick);
             for (ChangeEvent expected : changeEvents) {

@@ -30,8 +30,9 @@ public class Signal implements Position {
      * @return signal strength the sensor at location receives from this signal
      */
     public long getStrength(Position position) {
-        long distanceSquared = (MathUtil.square(position.getX() - x) + MathUtil.square(position.getY() - y));
-        return energy * Constants.METER_ACCURACY * Constants.METER_ACCURACY / distanceSquared;
+        return energy;
+//        long distanceSquared = (MathUtil.square(position.getX() - x) + MathUtil.square(position.getY() - y));
+//        return energy * Constants.METER_ACCURACY * Constants.METER_ACCURACY / distanceSquared;
     }
 
     public void update() {

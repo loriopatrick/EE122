@@ -22,7 +22,7 @@ public class Main {
 
         Random rand = new Random(3214);
 
-        int last = 100000;
+        int last = 445;
         for (int i = 0; i < last; i++) {
             for (int j = 0; j < transmitters.length; j++) {
                 Transmitter transmitter = transmitters[j];
@@ -46,6 +46,9 @@ public class Main {
             engine.update();
             List<ChangeEvent> changes = analyzer.getChanges();
             if (changes.size() > 0) {
+                if (engine.getCurrentTick() == 1245) {
+                    System.out.println("HERE");
+                }
                 if (!decoder.processEvents(engine.getCurrentTick(), changes)) {
                     throw new RuntimeException("BAD AND SAD");
                 }
@@ -75,7 +78,7 @@ public class Main {
 
     public static Transmitter[] buildTransmitters() {
         return new Transmitter[]{
-                new Transmitter(MathUtil.inSeconds(10), MathUtil.inJoules(50),
+                new Transmitter(MathUtil.inSeconds(10), MathUtil.inJoules(20),
                         MathUtil.inMeters(0), MathUtil.inMeters(5)),
                 new Transmitter(MathUtil.inSeconds(10), MathUtil.inJoules(10),
                         MathUtil.inMeters(0), MathUtil.inMeters(20)),
