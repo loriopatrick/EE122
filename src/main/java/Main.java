@@ -16,8 +16,6 @@ public class Main {
         TransmitterProfile[] profiles = buildProfiles();
 
         SignalEngine engine = new SignalEngine(100, new Grid(receivers));
-
-        engine = new SignalEngine(100, new Grid(receivers));
         NetworkAnalyzer analyzer = new NetworkAnalyzer(engine);
 
         Option decoder = new Option(profiles);
@@ -69,24 +67,24 @@ public class Main {
 
     public static Receiver[] buildReceivers() {
         return new Receiver[]{
-                new Receiver(0, -MathUtil.inMeters(50), MathUtil.inMeters(0)),
-                new Receiver(1, MathUtil.inMeters(30), MathUtil.inMeters(30)),
-                new Receiver(2, MathUtil.inMeters(30), MathUtil.inMeters(-30))
+                new Receiver(0, -MathUtil.inMeters(0), MathUtil.inMeters(0)),
+                new Receiver(1, MathUtil.inMeters(0), MathUtil.inMeters(30)),
+                new Receiver(2, MathUtil.inMeters(0), MathUtil.inMeters(-30))
         };
     }
 
     public static Transmitter[] buildTransmitters() {
         return new Transmitter[]{
                 new Transmitter(MathUtil.inSeconds(10), MathUtil.inJoules(50),
-                        MathUtil.inMeters(5), MathUtil.inMeters(5)),
+                        MathUtil.inMeters(0), MathUtil.inMeters(5)),
                 new Transmitter(MathUtil.inSeconds(10), MathUtil.inJoules(10),
-                        MathUtil.inMeters(20), MathUtil.inMeters(20)),
+                        MathUtil.inMeters(0), MathUtil.inMeters(20)),
                 new Transmitter(MathUtil.inSeconds(10), MathUtil.inJoules(30),
-                        MathUtil.inMeters(30), MathUtil.inMeters(50)),
+                        MathUtil.inMeters(0), MathUtil.inMeters(50)),
                 new Transmitter(MathUtil.inSeconds(10), MathUtil.inJoules(30),
-                        MathUtil.inMeters(15), -MathUtil.inMeters(15)),
+                        MathUtil.inMeters(0), -MathUtil.inMeters(15)),
                 new Transmitter(MathUtil.inSeconds(10), MathUtil.inJoules(60),
-                        MathUtil.inMeters(0), MathUtil.inMeters(0)),
+                        MathUtil.inMeters(0), MathUtil.inMeters(-32)),
         };
     }
 

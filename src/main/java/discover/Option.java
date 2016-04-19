@@ -108,6 +108,8 @@ public class Option {
                 events = FilterEvents(currentTick, currentTick, events, addedProfiles);
                 return processEvents(currentTick, events);
             } else {
+                System.out.println("TANGENT!!" + currentTick);
+                System.exit(0);
                 for (List<Integer> activatedProfiles : options) {
                     Option tangent = new Option(profiles);
                     tangent.activeProfiles.addAll(activeProfiles);
