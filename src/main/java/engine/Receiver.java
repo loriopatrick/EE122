@@ -16,10 +16,6 @@ public class Receiver implements Position {
         this.y = y;
     }
 
-    public int getIdx() {
-        return idx;
-    }
-
     @Override
     public long getX() {
         return x;
@@ -36,10 +32,6 @@ public class Receiver implements Position {
 
     public void updateSignal(long delta) {
         signal += delta;
-    }
-
-    public boolean equals(Receiver r) {
-        return idx == r.idx;
     }
 
     @Override

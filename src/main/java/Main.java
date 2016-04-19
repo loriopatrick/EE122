@@ -34,7 +34,7 @@ public class Main {
 
             engine.update();
             ReceiverChange[] changes = analyzer.getChanges();
-            if (!decoder.processChanges(engine.getCurrentTick(), changes)) {
+            if (decoder.processChanges(engine.getCurrentTick(), changes)) {
                 throw new RuntimeException("BAD AND SAD");
             }
         }
@@ -45,7 +45,7 @@ public class Main {
                 System.out.println("HERE");
             }
             ReceiverChange[] changes = analyzer.getChanges();
-            if (!decoder.processChanges(engine.getCurrentTick(), changes)) {
+            if (decoder.processChanges(engine.getCurrentTick(), changes)) {
                 throw new RuntimeException("BAD AND SAD");
             }
         }

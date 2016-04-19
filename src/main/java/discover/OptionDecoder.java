@@ -33,7 +33,7 @@ public class OptionDecoder {
             // process all tangents, clean up those that die
             List<OptionDecoder> deadTangents = new ArrayList<>();
             for (OptionDecoder tangent : tangents) {
-                if (!tangent.processChanges(currentTick, changes)) {
+                if (tangent.processChanges(currentTick, changes)) {
                     System.out.println("DIE");
                     deadTangents.add(tangent);
                 }
@@ -44,7 +44,7 @@ public class OptionDecoder {
             // so this must not be possible
             if (tangents.size() == 0) {
                 System.out.println("Removed all tangents");
-                return false;
+                return true;
             }
 
             // merge tangent to this option
@@ -75,7 +75,7 @@ public class OptionDecoder {
                 tangents.clear();
             }
 
-            return true;
+            return false;
         }
 
         // Filter out events from profiles we've already discovered
@@ -84,7 +84,7 @@ public class OptionDecoder {
         expectedChangesList.removeIf((p) -> p.isOver(currentTick));
         lastProcessedTick = currentTick;
 
-        return computeAndApplyProfiles(currentTick, changes);
+        return !computeAndApplyProfiles(currentTick, changes);
     }
 
     private boolean computeAndApplyProfiles(long tick, ReceiverChange[] events) {
@@ -214,13 +214,11 @@ public class OptionDecoder {
 
     private static class ExpectedChanges {
         final TransmitterProfile profile;
-        final long discoveryTick;
         final long startTick;
         final boolean invert;
 
         public ExpectedChanges(TransmitterProfile profile, long discoveryTick, boolean invert) {
             this.profile = profile;
-            this.discoveryTick = discoveryTick;
             this.invert = invert;
             startTick = discoveryTick - profile.getEvents().get(0).getTick();
         }
@@ -237,15 +235,6 @@ public class OptionDecoder {
                 }
             }
             return receiverChanges;
-        }
-
-        public long getSkippedTick(long lastTick, long currentTick) {
-            for (ReceiverChange receiverChange : profile.getEvents()) {
-                if (receiverChange.getTick() + startTick > lastTick && receiverChange.getTick() + startTick < currentTick) {
-                    return receiverChange.getTick() + startTick;
-                }
-            }
-            return -1;
         }
 
         public boolean isOver(long tick) {
