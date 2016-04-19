@@ -22,7 +22,7 @@ public class Main {
 
         Random rand = new Random(3214);
 
-        int last = 445;
+        int last = 100000;
         for (int i = 0; i < last; i++) {
             for (int j = 0; j < transmitters.length; j++) {
                 Transmitter transmitter = transmitters[j];
@@ -34,7 +34,7 @@ public class Main {
             }
 
             engine.update();
-            List<ChangeEvent> changes = analyzer.getChanges();
+            ChangeEvent[] changes = analyzer.getChanges();
             if (!decoder.processEvents(engine.getCurrentTick(), changes)) {
                 throw new RuntimeException("BAD AND SAD");
             }
@@ -42,10 +42,10 @@ public class Main {
 
         for (int i = 0; i < 5000; i++) {
             engine.update();
-            List<ChangeEvent> changes = analyzer.getChanges();
-            if (engine.getCurrentTick() == 1245) {
+            if (engine.getCurrentTick() == 669) {
                 System.out.println("HERE");
             }
+            ChangeEvent[] changes = analyzer.getChanges();
             if (!decoder.processEvents(engine.getCurrentTick(), changes)) {
                 throw new RuntimeException("BAD AND SAD");
             }
@@ -99,7 +99,11 @@ public class Main {
         while (changeEvents.size() < receivers) {
             transmitter.update(engine);
             engine.update();
-            changeEvents.addAll(networkAnalyzer.getChanges());
+            for (ChangeEvent changeEvent : networkAnalyzer.getChanges()) {
+                if (changeEvent != null) {
+                    changeEvents.add(changeEvent);
+                }
+            }
         }
 
         for (int i = 0; i < changeEvents.size(); i++) {

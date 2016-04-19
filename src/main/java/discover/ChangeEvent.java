@@ -6,19 +6,19 @@ import engine.Receiver;
  * @author plorio
  */
 public class ChangeEvent implements Comparable<ChangeEvent> {
-    private final Receiver receiver;
+    private final int receiver;
     private final long delta;
     private final long finalPower;
     private final long tick;
 
-    public ChangeEvent(Receiver receiver, long delta, long finalPower, long tick) {
+    public ChangeEvent(int receiver, long delta, long finalPower, long tick) {
         this.receiver = receiver;
         this.delta = delta;
         this.finalPower = finalPower;
         this.tick = tick;
     }
 
-    public Receiver getReceiver() {
+    public int getReceiver() {
         return receiver;
     }
 

@@ -21,6 +21,7 @@ public class SignalEngine {
 
     public void update() {
         currentTick++;
+        System.out.println("RUN :: " + currentTick);
         for (Signal signal : signals) {
             long originalStartLifetime = signal.getLifetimeStart();
             long originalEndLifetime = signal.getLifetimeEnd();
@@ -39,10 +40,12 @@ public class SignalEngine {
             );
 
             for (Receiver receiver : receiversNoLongerInRange) {
+                System.out.println("OUT RANGE: " + receiver + " with " + signal);
                 receiver.updateSignal(-signal.getStrength(receiver));
             }
 
             for (Receiver receiver : receiversNowInRange) {
+                System.out.println("IN RANGE: " + receiver + " with " + signal);
                 receiver.updateSignal(signal.getStrength(receiver));
             }
         }

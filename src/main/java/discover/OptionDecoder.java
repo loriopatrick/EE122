@@ -26,7 +26,7 @@ public class OptionDecoder {
 
     private long lastProcessedTick = 0;
 
-    public boolean processEvents(long currentTick, List<ChangeEvent> events) {
+    public boolean processEvents(long currentTick, ChangeEvent[] events) {
         if (tangents.size() > 0) {
             // process all tangents, clean up those that die
             List<OptionDecoder> deadTangents = new ArrayList<>();
@@ -85,16 +85,20 @@ public class OptionDecoder {
         return computeAndApplyProfiles(currentTick, events);
     }
 
-    private boolean computeAndApplyProfiles(long tick, List<ChangeEvent> events) {
-        while (events.size() > 0) {
-            ChangeEvent event = events.get(0);
+    private boolean computeAndApplyProfiles(long tick, ChangeEvent[] events) {
+        for (int i = 0; i < events.length; i++) {
+            ChangeEvent event = events[i];
+
+            if (event == null) {
+                continue;
+            }
 
             // Add all profiles that started with the event's receiver to the query
             NumberSum<Integer> profileOptions = new NumberSum<>();
-            for (int i = 0; i < profiles.length; i++) {
-                if (profiles[i].getFirstReceiver().equals(event.getReceiver())) {
-                    int scale = latestStates[i] ? -1 : 1;
-                    profileOptions.add(scale * profiles[i].getEvents().get(0).getDelta(), i);
+            for (int j = 0; j < profiles.length; j++) {
+                if (profiles[j].getFirstReceiver() == event.getReceiver()) {
+                    int scale = latestStates[j] ? -1 : 1;
+                    profileOptions.add(scale * profiles[j].getEvents().get(0).getDelta(), j);
                 }
             }
 
@@ -128,7 +132,7 @@ public class OptionDecoder {
 
                     List<ActiveProfile> addedProfiles = activatedProfiles.stream()
                             .map(idx -> tangent.applyProfile(tick, idx)).collect(Collectors.toList());
-                    List<ChangeEvent> tangentEvents = FilterEvents(tick, tick, events, addedProfiles);
+                    ChangeEvent[] tangentEvents = FilterEvents(tick, tick, events, addedProfiles);
                     if (tangentEvents == null) {
                         return false;
                     }
@@ -141,64 +145,56 @@ public class OptionDecoder {
         return true;
     }
 
-    private static List<ChangeEvent> FilterEvents(long previousTick, long tick,
-                                                  List<ChangeEvent> events, List<ActiveProfile> profiles) {
-        for (ActiveProfile activeProfile : profiles) {
+    private static ChangeEvent[] FilterEvents(long previousTick, long tick,
+                                                  ChangeEvent[] events, List<ActiveProfile> profiles) {
+        assert (previousTick + 1 == tick);
 
-            long skippedTick = activeProfile.getSkippedTick(previousTick, tick);
-            if (skippedTick != -1) {
-                // We didn't get an expected event so we need to make sure
-                // our expected delta at the missing event time is zero.
-                List<ChangeEvent> missedEvents = activeProfile.getStage(skippedTick);
-                for (ChangeEvent missedEvent : missedEvents) {
-                    long delta = 0;
-                    for (ActiveProfile profile : profiles) {
-                        long profileScale = profile.invert ? -1 : 1;
-                        List<ChangeEvent> phantomEvents = profile.getStage(skippedTick);
-                        for (ChangeEvent phantomEvent : phantomEvents) {
-                            if (phantomEvent.getReceiver().equals(missedEvent.getReceiver())) {
-                                delta += phantomEvent.getDelta() * profileScale;
-                            }
-                        }
-                    }
-                    if (delta != 0) {
-                        return null;
-                    }
+        boolean noChange = true;
+        long[] expectedDeltas = new long[events.length];
+        for (ActiveProfile activeProfile : profiles) {
+            long scale = activeProfile.invert ? -1 : 1;
+            ChangeEvent[] changeEvents = activeProfile.getStage(tick);
+            for (int i = 0; i < changeEvents.length; i++) {
+                if (changeEvents[i] != null) {
+                    expectedDeltas[i] += changeEvents[i].getDelta() * scale;
+                    noChange = false;
                 }
             }
+        }
 
-            if (activeProfile.isOver(tick)) {
+        if (noChange) {
+            return events;
+        }
+
+        ChangeEvent[] cleanedEvents = new ChangeEvent[events.length];
+        for (int i = 0; i < events.length; i++) {
+            ChangeEvent actual = events[i];
+            long expectedDelta = expectedDeltas[i];
+
+            if (actual == null) {
+                if (expectedDelta != 0) {
+                    cleanedEvents[i] = new ChangeEvent(
+                            i,
+                            -expectedDelta,
+                            -expectedDelta,
+                            tick
+                    );
+                }
+
                 continue;
             }
 
-            // todo make sure all events that should be run are ran
-
-            long scale = activeProfile.invert ? -1 : 1;
-            List<ChangeEvent> changeEvents = activeProfile.getStage(tick);
-            for (ChangeEvent expected : changeEvents) {
-                List<ChangeEvent> cleanedEvents = new ArrayList<>(events.size());
-                for (ChangeEvent event : events) {
-                    if (event.getReceiver().equals(expected.getReceiver())) {
-                        if (event.getDelta() == expected.getDelta() * scale) {
-                            continue;
-                        }
-                        if (!activeProfile.invert && event.getFinalPower() < expected.getDelta()) {
-                            return null;
-                        }
-                        cleanedEvents.add(new ChangeEvent(
-                                event.getReceiver(),
-                                event.getDelta() - expected.getDelta() * scale,
-                                event.getFinalPower() - expected.getDelta() * scale,
-                                event.getTick()
-                        ));
-                    } else {
-                        cleanedEvents.add(event);
-                    }
-                }
-                events = cleanedEvents;
+            if (actual.getDelta() != expectedDelta) {
+                cleanedEvents[i] = new ChangeEvent(
+                        i,
+                        actual.getDelta() - expectedDelta,
+                        actual.getFinalPower() - expectedDelta,
+                        actual.getTick()
+                );
             }
         }
-        return events;
+
+        return cleanedEvents;
     }
 
     private ActiveProfile applyProfile(long currentTick, int profileIdx) {
@@ -233,14 +229,14 @@ public class OptionDecoder {
             startTick = discoveryTick - profile.getEvents().get(0).getTick();
         }
 
-        public List<ChangeEvent> getStage(long tick) {
-            List<ChangeEvent> changeEvents = new ArrayList<>();
+        public ChangeEvent[] getStage(long tick) {
+            ChangeEvent[] changeEvents = new ChangeEvent[profile.getEvents().size()];
             tick -= startTick;
-            for (ChangeEvent changeEvent : profile.getEvents()) {
-                if (changeEvent.getTick() == tick) {
-                    changeEvents.add(changeEvent);
+            for (ChangeEvent event : profile.getEvents()) {
+                if (event.getTick() == tick) {
+                    changeEvents[event.getReceiver()] = event;
                 }
-                if (changeEvent.getTick() > tick) {
+                if (event.getTick() > tick) {
                     return changeEvents;
                 }
             }

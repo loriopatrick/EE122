@@ -24,17 +24,17 @@ public class NetworkAnalyzer {
         }
     }
 
-    public List<ChangeEvent> getChanges() {
-        ArrayList<ChangeEvent> events = new ArrayList<>();
+    public ChangeEvent[] getChanges() {
+        ChangeEvent[] events = new ChangeEvent[receivers.length];
         for (int i = 0; i < receivers.length; i++) {
             long signal = receivers[i].getSignal();
             if (signal != lastSignals[i]) {
-                events.add(new ChangeEvent(
-                        receivers[i],
+                events[i] = new ChangeEvent(
+                        i,
                         signal - lastSignals[i],
                         signal,
                         engine.getCurrentTick()
-                ));
+                );
                 lastSignals[i] = signal;
             }
         }

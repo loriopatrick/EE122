@@ -84,13 +84,13 @@ public class Signal implements Position {
         return y;
     }
 
-    @Override
-    public String toString() {
-        return "Signal{" +
-                "x=" + x +
-                ", y=" + y +
-                ", energy=" + energy +
-                ", alive=" + alive +
-                '}';
-    }
+//    @Override
+//    public String toString() {
+//        return "Signal{" +
+//                "x=" + x +
+//                ", y=" + y +
+//                ", energy=" + energy +
+//                ", alive=" + alive +
+//                '}';
+//    }
 }

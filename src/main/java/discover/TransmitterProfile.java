@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class TransmitterProfile {
     private final List<ChangeEvent> events;
-    private final Receiver receiver;
+    private final int receiver;
 
     public TransmitterProfile(List<ChangeEvent> events) {
         this.events = events;
@@ -20,7 +20,7 @@ public class TransmitterProfile {
         return events;
     }
 
-    public Receiver getFirstReceiver() {
+    public int getFirstReceiver() {
         return receiver;
     }
 }

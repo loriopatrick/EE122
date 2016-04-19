@@ -4,20 +4,20 @@ package engine;
  * @author plorio
  */
 public class Receiver implements Position {
-    private final int id;
+    private final int idx;
     private final long x;
     private final long y;
 
     private long signal;
 
-    public Receiver(int id, long x, long y) {
-        this.id = id;
+    public Receiver(int idx, long x, long y) {
+        this.idx = idx;
         this.x = x;
         this.y = y;
     }
 
-    public int getId() {
-        return id;
+    public int getIdx() {
+        return idx;
     }
 
     @Override
@@ -39,13 +39,14 @@ public class Receiver implements Position {
     }
 
     public boolean equals(Receiver r) {
-        return id == r.id;
+        return idx == r.idx;
     }
 
     @Override
     public String toString() {
         return "Receiver{" +
-                "x=" + x +
+                "idx=" + idx +
+                ",x=" + x +
                 ", y=" + y +
                 '}';
     }
