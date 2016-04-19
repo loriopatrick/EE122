@@ -35,23 +35,19 @@ public class Main {
 
             engine.update();
             List<ChangeEvent> changes = analyzer.getChanges();
-            if (changes.size() > 0) {
-                if (!decoder.processEvents(engine.getCurrentTick(), changes)) {
-                    throw new RuntimeException("BAD AND SAD");
-                }
+            if (!decoder.processEvents(engine.getCurrentTick(), changes)) {
+                throw new RuntimeException("BAD AND SAD");
             }
         }
 
         for (int i = 0; i < 5000; i++) {
             engine.update();
             List<ChangeEvent> changes = analyzer.getChanges();
-            if (changes.size() > 0) {
-                if (engine.getCurrentTick() == 1245) {
-                    System.out.println("HERE");
-                }
-                if (!decoder.processEvents(engine.getCurrentTick(), changes)) {
-                    throw new RuntimeException("BAD AND SAD");
-                }
+            if (engine.getCurrentTick() == 1245) {
+                System.out.println("HERE");
+            }
+            if (!decoder.processEvents(engine.getCurrentTick(), changes)) {
+                throw new RuntimeException("BAD AND SAD");
             }
         }
     }

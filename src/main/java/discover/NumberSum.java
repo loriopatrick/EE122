@@ -21,7 +21,7 @@ public class NumberSum<T> {
         ArrayList<List<T>> lists = new ArrayList<>();
 
         int combinations = 2 << (items.size() - 1);
-        for (int i = 1; i <= combinations; i++) {
+        for (int i = 1; i < combinations; i++) {
             long sum = 0;
             int count = 0;
             for (int j = 0; j < items.size(); j++) {

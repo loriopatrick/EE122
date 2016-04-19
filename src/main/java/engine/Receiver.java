@@ -4,19 +4,19 @@ package engine;
  * @author plorio
  */
 public class Receiver implements Position {
-    private final long id;
+    private final int id;
     private final long x;
     private final long y;
 
     private long signal;
 
-    public Receiver(long id, long x, long y) {
+    public Receiver(int id, long x, long y) {
         this.id = id;
         this.x = x;
         this.y = y;
     }
 
-    public long getId() {
+    public int getId() {
         return id;
     }
 
