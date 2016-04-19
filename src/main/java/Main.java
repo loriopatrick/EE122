@@ -1,4 +1,7 @@
-import discover.*;
+import discover.NetworkAnalyzer;
+import discover.OptionDecoder;
+import discover.ReceiverChange;
+import discover.TransmitterProfile;
 import engine.*;
 
 import java.util.ArrayList;
@@ -22,7 +25,7 @@ public class Main {
 
         Random rand = new Random(3214);
 
-        int last = 100000;
+        int last = 100;
         for (int i = 0; i < last; i++) {
             for (int j = 0; j < transmitters.length; j++) {
                 Transmitter transmitter = transmitters[j];
@@ -39,16 +42,15 @@ public class Main {
             }
         }
 
-        for (int i = 0; i < 5000; i++) {
+        for (int i = 0; i < 500; i++) {
             engine.update();
-            if (engine.getCurrentTick() == 669) {
-                System.out.println("HERE");
-            }
             ReceiverChange[] changes = analyzer.getChanges();
             if (decoder.processChanges(engine.getCurrentTick(), changes)) {
                 throw new RuntimeException("BAD AND SAD");
             }
         }
+
+        System.out.println(decoder.takeEvents(engine.getCurrentTick()));
     }
 
     public static TransmitterProfile[] buildProfiles() {

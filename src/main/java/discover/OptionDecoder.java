@@ -16,13 +16,39 @@ public class OptionDecoder {
 
     private final List<OptionDecoder> tangents;
 
+    private final long longestPropagation;
+
     public OptionDecoder(TransmitterProfile[] profiles) {
         this.profiles = profiles;
         signalUpdates = new TreeMap<>();
         expectedChangesList = new ArrayList<>();
         latestStates = new boolean[profiles.length];
         tangents = new ArrayList<>();
+
+        long maxTick = 0;
+        for (TransmitterProfile profile : profiles) {
+            long tick = profile.getEvents().get(0).getTick();
+            if (tick > maxTick) {
+                maxTick = tick;
+            }
+        }
+        longestPropagation = maxTick;
     }
+
+    public List<SignalEvent> takeEvents(long currentTick) {
+        List<SignalEvent> events = new ArrayList<>();
+        List<Long> ticks = new ArrayList<>();
+        for (long tick : signalUpdates.navigableKeySet()) {
+            if (tick + longestPropagation > currentTick) {
+                break;
+            }
+            events.addAll(signalUpdates.get(tick));
+            ticks.add(tick);
+        }
+        ticks.forEach(signalUpdates::remove);
+        return events;
+    }
+
 
     private long lastProcessedTick = 0;
 
