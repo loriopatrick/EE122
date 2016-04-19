@@ -8,15 +8,15 @@ import java.util.stream.Collectors;
 /**
  * @author plorio
  */
-public class Option {
+public class OptionDecoder {
     private final TreeMap<Long, List<SignalEvent>> signalUpdates;
     private final TransmitterProfile[] profiles;
     private final List<ActiveProfile> activeProfiles;
     private final boolean[] latestStates;
 
-    private final List<Option> tangents;
+    private final List<OptionDecoder> tangents;
 
-    public Option(TransmitterProfile[] profiles) {
+    public OptionDecoder(TransmitterProfile[] profiles) {
         this.profiles = profiles;
         signalUpdates = new TreeMap<>();
         activeProfiles = new ArrayList<>();
@@ -29,8 +29,8 @@ public class Option {
     public boolean processEvents(long currentTick, List<ChangeEvent> events) {
         if (tangents.size() > 0) {
             // process all tangents, clean up those that die
-            List<Option> deadTangents = new ArrayList<>();
-            for (Option tangent : tangents) {
+            List<OptionDecoder> deadTangents = new ArrayList<>();
+            for (OptionDecoder tangent : tangents) {
                 if (!tangent.processEvents(currentTick, events)) {
                     deadTangents.add(tangent);
                 }
@@ -46,7 +46,7 @@ public class Option {
 
             // merge tangent to this option
             if (tangents.size() == 1) {
-                Option reality = tangents.get(0);
+                OptionDecoder reality = tangents.get(0);
 
                 // merge signal updates
                 reality.signalUpdates.forEach((key, value) -> {
@@ -121,7 +121,7 @@ public class Option {
             // Split off into tangents for all combination possibilities
             else {
                 for (List<Integer> activatedProfiles : options) {
-                    Option tangent = new Option(profiles);
+                    OptionDecoder tangent = new OptionDecoder(profiles);
                     tangent.activeProfiles.addAll(activeProfiles);
                     System.arraycopy(latestStates, 0, tangent.latestStates, 0, latestStates.length);
                     tangent.lastProcessedTick = tick;

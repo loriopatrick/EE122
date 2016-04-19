@@ -18,7 +18,7 @@ public class Main {
         SignalEngine engine = new SignalEngine(100, new Grid(receivers));
         NetworkAnalyzer analyzer = new NetworkAnalyzer(engine);
 
-        Option decoder = new Option(profiles);
+        OptionDecoder decoder = new OptionDecoder(profiles);
 
         Random rand = new Random(3214);
 
