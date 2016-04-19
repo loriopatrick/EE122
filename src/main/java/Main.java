@@ -22,11 +22,11 @@ public class Main {
 
         Random rand = new Random(3214);
 
-        int last = 7706;
+        int last = 100000;
         for (int i = 0; i < last; i++) {
             for (int j = 0; j < transmitters.length; j++) {
                 Transmitter transmitter = transmitters[j];
-                if (rand.nextDouble() > 0.9 && i % 5 == 0) {
+                if (rand.nextDouble() > 0.9) {
                     transmitter.setActive(!transmitter.isActive());
                     System.out.println("SET " + new SignalEvent(j, transmitter.isActive(), engine.getCurrentTick()));
                 }
@@ -42,7 +42,7 @@ public class Main {
             }
         }
 
-        for (int i = 0; i < 10000000; i++) {
+        for (int i = 0; i < 5000; i++) {
             engine.update();
             List<ChangeEvent> changes = analyzer.getChanges();
             if (changes.size() > 0) {

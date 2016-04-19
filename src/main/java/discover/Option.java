@@ -144,8 +144,27 @@ public class Option {
     private static List<ChangeEvent> FilterEvents(long previousTick, long tick,
                                                   List<ChangeEvent> events, List<ActiveProfile> profiles) {
         for (ActiveProfile activeProfile : profiles) {
-            if (activeProfile.skippedStage(previousTick, tick)) {
-                return null;
+
+            long skippedTick = activeProfile.getSkippedTick(previousTick, tick);
+            if (skippedTick != -1) {
+                // We didn't get an expected event so we need to make sure
+                // our expected delta at the missing event time is zero.
+                List<ChangeEvent> missedEvents = activeProfile.getStage(skippedTick);
+                for (ChangeEvent missedEvent : missedEvents) {
+                    long delta = 0;
+                    for (ActiveProfile profile : profiles) {
+                        long profileScale = profile.invert ? -1 : 1;
+                        List<ChangeEvent> phantomEvents = profile.getStage(skippedTick);
+                        for (ChangeEvent phantomEvent : phantomEvents) {
+                            if (phantomEvent.getReceiver().equals(missedEvent.getReceiver())) {
+                                delta += phantomEvent.getDelta() * profileScale;
+                            }
+                        }
+                    }
+                    if (delta != 0) {
+                        return null;
+                    }
+                }
             }
 
             if (activeProfile.isOver(tick)) {
@@ -226,13 +245,13 @@ public class Option {
             return changeEvents;
         }
 
-        public boolean skippedStage(long lastTick, long currentTick) {
+        public long getSkippedTick(long lastTick, long currentTick) {
             for (ChangeEvent changeEvent : profile.getEvents()) {
                 if (changeEvent.getTick() + startTick > lastTick && changeEvent.getTick() + startTick < currentTick) {
-                    return true;
+                    return changeEvent.getTick() + startTick;
                 }
             }
-            return false;
+            return -1;
         }
 
         public boolean isOver(long tick) {
