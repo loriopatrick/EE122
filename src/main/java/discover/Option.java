@@ -3,6 +3,7 @@ package discover;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /**
  * @author plorio
@@ -73,46 +74,13 @@ public class Option {
         }
 
         // Filter out profiles we've already discovered
-        List<ActiveProfile> deadProfiles = new ArrayList<>();
-        for (ActiveProfile activeProfile : activeProfiles) {
-            if (activeProfile.skippedStage(lastProcessedTick, currentTick)) {
-                System.out.println("Skipped expected stage of active profile");
-                return false;
-            }
-
-            if (activeProfile.isOver(currentTick)) {
-                deadProfiles.add(activeProfile);
-                continue;
-            }
-
-            long scale = activeProfile.invert ? -1 : 1;
-            List<ChangeEvent> changeEvents = activeProfile.getStage(currentTick);
-            for (ChangeEvent expected : changeEvents) {
-                List<ChangeEvent> cleanedEvents = new ArrayList<>(events.size());
-                for (ChangeEvent event : events) {
-                    if (event.getReceiver().equals(expected.getReceiver())) {
-                        if (event.getDelta() == expected.getDelta() * scale) {
-                            continue;
-                        }
-                        if (!activeProfile.invert && event.getFinalPower() < expected.getDelta()) {
-                            System.out.println("Active profile is not possible");
-                            return false;
-                        }
-                        cleanedEvents.add(new ChangeEvent(
-                                event.getReceiver(),
-                                event.getDelta() - expected.getDelta() * scale,
-                                event.getFinalPower() - expected.getDelta() * scale,
-                                expected.getTick()
-                        ));
-                    } else {
-                        cleanedEvents.add(event);
-                    }
-                }
-                events = cleanedEvents;
-            }
+        events = FilterEvents(lastProcessedTick, currentTick, events, activeProfiles);
+        if (events == null) {
+            return false;
         }
-        deadProfiles.forEach(activeProfiles::remove);
 
+        // Remove old profiles
+        activeProfiles.removeIf((p) -> p.isOver(currentTick));
         lastProcessedTick = currentTick;
 
         if (events.size() > 0) {
@@ -134,35 +102,77 @@ public class Option {
 
             if (options.size() == 1) {
                 List<Integer> activatedProfiles = options.get(0);
-                for (int idx : activatedProfiles) {
-                    applyProfile(currentTick, idx);
-                }
+
+                List<ActiveProfile> addedProfiles = activatedProfiles.stream()
+                        .map(idx -> applyProfile(currentTick, idx)).collect(Collectors.toList());
+                events = FilterEvents(currentTick, currentTick, events, addedProfiles);
+                return processEvents(currentTick, events);
             } else {
-                for (List<Integer> option : options) {
+                for (List<Integer> activatedProfiles : options) {
                     Option tangent = new Option(profiles);
                     tangent.activeProfiles.addAll(activeProfiles);
                     System.arraycopy(latestStates, 0, tangent.latestStates, 0, latestStates.length);
                     tangent.lastProcessedTick = currentTick;
 
-                    for (int idx : option) {
-                        applyProfile(currentTick, idx);
-                    }
+                    List<ActiveProfile> addedProfiles = activatedProfiles.stream()
+                            .map(idx -> tangent.applyProfile(currentTick, idx)).collect(Collectors.toList());
+                    events = FilterEvents(currentTick, currentTick, events, addedProfiles);
+                    tangent.processEvents(currentTick, events);
 
                     tangents.add(tangent);
                 }
             }
-
-            return processEvents(currentTick, events);
         }
 
         return true;
     }
 
-    private void applyProfile(long currentTick, int profileIdx) {
-        activeProfiles.add(new ActiveProfile(profiles[profileIdx], currentTick, latestStates[profileIdx]));
+    private static List<ChangeEvent> FilterEvents(long previousTick, long tick,
+                                                  List<ChangeEvent> events, List<ActiveProfile> profiles) {
+        for (ActiveProfile activeProfile : profiles) {
+            if (activeProfile.skippedStage(previousTick, tick)) {
+                return null;
+            }
+
+            if (activeProfile.isOver(tick)) {
+                continue;
+            }
+
+            long scale = activeProfile.invert ? -1 : 1;
+            List<ChangeEvent> changeEvents = activeProfile.getStage(tick);
+            for (ChangeEvent expected : changeEvents) {
+                List<ChangeEvent> cleanedEvents = new ArrayList<>(events.size());
+                for (ChangeEvent event : events) {
+                    if (event.getReceiver().equals(expected.getReceiver())) {
+                        if (event.getDelta() == expected.getDelta() * scale) {
+                            continue;
+                        }
+                        if (!activeProfile.invert && event.getFinalPower() < expected.getDelta()) {
+                            return null;
+                        }
+                        cleanedEvents.add(new ChangeEvent(
+                                event.getReceiver(),
+                                event.getDelta() - expected.getDelta() * scale,
+                                event.getFinalPower() - expected.getDelta() * scale,
+                                event.getTick()
+                        ));
+                    } else {
+                        cleanedEvents.add(event);
+                    }
+                }
+                events = cleanedEvents;
+            }
+        }
+        return events;
+    }
+
+    private ActiveProfile applyProfile(long currentTick, int profileIdx) {
+        ActiveProfile profile = new ActiveProfile(profiles[profileIdx], currentTick, latestStates[profileIdx]);
+        activeProfiles.add(profile);
         latestStates[profileIdx] = !latestStates[profileIdx];
         long tick = currentTick - profiles[profileIdx].getEvents().get(0).getTick();
         addSignalEvent(new SignalEvent(profileIdx, latestStates[profileIdx], tick));
+        return profile;
     }
 
     private void addSignalEvent(SignalEvent event) {

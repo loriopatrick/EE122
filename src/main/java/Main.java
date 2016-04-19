@@ -17,14 +17,15 @@ public class Main {
 
         SignalEngine engine = new SignalEngine(100, new Grid(receivers));
 
-        NetworkAnalyzer analyzer = new NetworkAnalyzer(engine);
         engine = new SignalEngine(100, new Grid(receivers));
+        NetworkAnalyzer analyzer = new NetworkAnalyzer(engine);
 
         Option decoder = new Option(profiles);
 
         Random rand = new Random(3214);
 
-        for (int i = 0; i < 600; i++) {
+        int last = 60000;
+        for (int i = 0; i < last; i++) {
             for (int j = 0; j < transmitters.length; j++) {
                 Transmitter transmitter = transmitters[j];
                 if (rand.nextDouble() > 0.9 && i % 5 == 0) {
@@ -43,7 +44,7 @@ public class Main {
             }
         }
 
-        for (int i = 0; i < 5000; i++) {
+        for (int i = 0; i < 10000000; i++) {
             engine.update();
             List<ChangeEvent> changes = analyzer.getChanges();
             if (changes.size() > 0) {
