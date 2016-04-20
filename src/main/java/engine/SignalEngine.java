@@ -48,14 +48,8 @@ public class SignalEngine {
         }
     }
 
-    public int activeSignals() {
-        int count = 0;
-        for (Signal signal : signals) {
-            if (signal.isAlive()) {
-                count++;
-            }
-        }
-        return count;
+    public List<Signal> getSignals() {
+        return signals;
     }
 
     /**

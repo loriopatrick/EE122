@@ -49,6 +49,9 @@ public class OptionDecoder {
         return events;
     }
 
+    public long getDecoderLag() {
+        return longestPropagation;
+    }
 
     private long lastProcessedTick = 0;
 
