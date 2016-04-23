@@ -61,10 +61,12 @@ public class GraphPanel extends JComponent {
     }
 
     private void drawTransmitters(Graphics2D g) {
-        for (Position p : this.snapshot.transmitters) {
-            int x = scaleX(p.getX()) - 5;
-            int y = scaleY(p.getY()) - 5;
-            g.setColor(Color.GREEN);
+        for (int i = 0; i < snapshot.transmitters.length; i++) {
+            Position pos = snapshot.transmitters[i];
+            int x = scaleX(pos.getX()) - 5;
+            int y = scaleY(pos.getY()) - 5;
+            long trans = snapshot.transmittersHistory[i].get(0);
+            g.setColor(trans == 0 ? Color.GREEN : Color.BLACK);
             g.fillOval(x, y, 10, 10);
         }
     }
