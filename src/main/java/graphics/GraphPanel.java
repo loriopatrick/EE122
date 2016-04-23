@@ -11,7 +11,7 @@ import java.awt.*;
 /*
  * Created by mia on 4/19/16.
  */
-public class GraphPanel extends JPanel {
+public class GraphPanel extends JComponent {
     public Snapshot snapshot;
     public long ticks;
     public int xMax;

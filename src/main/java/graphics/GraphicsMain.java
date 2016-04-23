@@ -8,12 +8,11 @@ import run.SystemRunner;
  */
 public class GraphicsMain {
     private final SystemRunner runner;
-    private final GraphFrame graphFrame;
     private final GraphPanel graphPanel;
 
     public GraphicsMain() {
         runner = new SystemRunner();
-        graphFrame = new GraphFrame();
+        GraphFrame graphFrame = new GraphFrame();
         graphPanel = new GraphPanel();
         graphPanel.updateSnapshot(runner.tick());
         graphFrame.add(graphPanel);
@@ -22,7 +21,7 @@ public class GraphicsMain {
     public void update() {
         Snapshot snapshot = runner.tick();
         graphPanel.updateSnapshot(snapshot);
-        graphPanel.repaint();
+        graphPanel.paintImmediately(0, 0, graphPanel.xMax, graphPanel.yMax);
     }
 
     public static void main(String[] args) {
