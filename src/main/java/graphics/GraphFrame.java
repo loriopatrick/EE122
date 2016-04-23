@@ -1,4 +1,4 @@
-package run;
+package graphics;
 
 import javax.swing.*;
 

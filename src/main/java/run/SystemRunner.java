@@ -2,6 +2,8 @@ package run;
 
 import discover.*;
 import engine.*;
+import graphics.GraphFrame;
+import graphics.GraphPanel;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,8 +23,6 @@ public class SystemRunner {
     private final Snapshot snapshot;
     private final OptionDecoder decoder;
     private final long[] decoded;
-    private GraphFrame graphFrame;
-    private GraphPanel graphPanel;
 
     public SystemRunner() {
         random = new Random(1024);
@@ -34,9 +34,6 @@ public class SystemRunner {
         snapshot = new Snapshot(receivers, transmitters, engine.getSignals(), 100);
         decoder = new OptionDecoder(profiles);
         decoded = new long[transmitters.length];
-        graphFrame = new GraphFrame();
-        graphPanel = new GraphPanel();
-        graphFrame.add(graphPanel);
     }
 
     public Snapshot tick() {
@@ -69,10 +66,6 @@ public class SystemRunner {
         }
         for (int i = 0; i < snapshot.decodedTransmitterHistory.length; i++) {
             snapshot.decodedTransmitterHistory[i].push(decoded[i]);
-        }
-        graphPanel.updateSnapshot(snapshot);
-        if(engine.getCurrentTick()%100==0){
-            graphPanel.repaint();
         }
         return snapshot;
     }
