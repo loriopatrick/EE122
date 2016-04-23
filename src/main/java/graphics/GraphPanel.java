@@ -33,7 +33,6 @@ public class GraphPanel extends JComponent {
         setBackground(Color.WHITE);
         setVisible(true);
         this.snapshot = null;
-
     }
 
     public void updateSnapshot(Snapshot s) {

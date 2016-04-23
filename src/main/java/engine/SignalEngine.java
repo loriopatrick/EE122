@@ -1,6 +1,7 @@
 package engine;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -21,7 +22,11 @@ public class SignalEngine {
 
     public void update() {
         currentTick++;
-        for (Signal signal : signals) {
+
+        Iterator<Signal> iterator = signals.iterator();
+        while (iterator.hasNext()) {
+            Signal signal = iterator.next();
+
             long originalStartLifetime = signal.getLifetimeStart();
             long originalEndLifetime = signal.getLifetimeEnd();
             signal.update();
@@ -38,12 +43,18 @@ public class SignalEngine {
                     distance(signal.getPropagationSpeed(), signal.getLifetimeStart())
             );
 
+            boolean left = false;
             for (Receiver receiver : receiversNoLongerInRange) {
                 receiver.updateSignal(-signal.getStrength(receiver));
+                left = true;
             }
 
             for (Receiver receiver : receiversNowInRange) {
                 receiver.updateSignal(signal.getStrength(receiver));
+            }
+
+            if (left && grid.outOfRange(signal, distance(signal.getPropagationSpeed(), signal.getLifetimeEnd()))) {
+                iterator.remove();
             }
         }
     }

@@ -36,6 +36,15 @@ public class Grid {
         }).collect(Collectors.toList());
     }
 
+    public boolean outOfRange(Position center, long start) {
+        final long startSquared = MathUtil.square(start);
+        return !Arrays.asList(receivers).stream().filter((rcv) -> {
+            long distSquared = MathUtil.square(center.getX() - rcv.getX()) +
+                    MathUtil.square(center.getY() - rcv.getY());
+            return distSquared > startSquared;
+        }).findAny().isPresent();
+    }
+
     public Receiver[] getReceivers() {
         return receivers;
     }
