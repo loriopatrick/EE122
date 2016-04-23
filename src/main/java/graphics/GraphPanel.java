@@ -1,12 +1,15 @@
 package graphics;
 
 
+import engine.Constants;
 import engine.Position;
 import engine.Signal;
 import run.Snapshot;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.geom.Ellipse2D;
+import java.util.Arrays;
 
 /*
  * Created by mia on 4/19/16.
@@ -19,7 +22,7 @@ public class GraphPanel extends JComponent {
     public int scaleValue;
 
     public GraphPanel() {
-        this(1000, 1000, 1000, 100);
+        this(100, 1000, 1000, 100);
     }
 
     public GraphPanel(long ticksPerSecond, int xMaximum, int yMaximum, int scaleVal) {
@@ -46,10 +49,11 @@ public class GraphPanel extends JComponent {
 
     private void drawGraph(Graphics2D g) {
         g.setBackground(Color.WHITE);
+        g.clearRect(0, 0, getWidth(), getHeight());
+        drawSignals(g);
         drawTick(g);
         drawTransmitters(g);
         drawReceivers(g);
-        drawSignals(g);
     }
 
     private void drawTick(Graphics2D g) {
@@ -59,8 +63,8 @@ public class GraphPanel extends JComponent {
 
     private void drawTransmitters(Graphics2D g) {
         for (Position p : this.snapshot.transmitters) {
-            int x = scaleX(p.getX());
-            int y = scaleY(p.getY());
+            int x = scaleX(p.getX()) - 5;
+            int y = scaleY(p.getY()) - 5;
             g.setColor(Color.GREEN);
             g.fillOval(x, y, 10, 10);
         }
@@ -68,8 +72,8 @@ public class GraphPanel extends JComponent {
 
     private void drawReceivers(Graphics2D g) {
         for (Position p : this.snapshot.receivers) {
-            int x = scaleX(p.getX());
-            int y = scaleY(p.getY());
+            int x = scaleX(p.getX()) - 5;
+            int y = scaleY(p.getY()) - 5;
             g.setColor(Color.BLUE);
             g.fillOval(x, y, 10, 10);
         }
@@ -77,13 +81,18 @@ public class GraphPanel extends JComponent {
 
     private void drawSignals(Graphics2D g) {
         for (Signal s : this.snapshot.signals) {
-            if (s.isAlive()) {
-                int x = scaleX(s.getX());
-                int y = scaleY(s.getY());
-                int dist = scaleDistance(distance(s.getPropagationSpeed(), this.snapshot.currentTick));
-                g.setColor(Color.BLACK);
-                g.drawOval(x - dist, y - dist, dist * 2, dist * 2);
-            }
+            int x = scaleX(s.getX());
+            int y = scaleY(s.getY());
+
+            int end = scaleDistance(distance(s.getPropagationSpeed(), s.getLifetimeStart()));
+            int begin = scaleDistance(distance(s.getPropagationSpeed(), s.getLifetimeEnd()));
+            int thickness = end - begin;
+
+            g.setColor(new Color(0, 0, 0, 20));
+            g.setStroke(new BasicStroke(thickness));
+            end -= thickness / 2;
+            g.drawOval(x - end, y - end, end * 2, end * 2);
+            g.setClip(null);
         }
     }
 
