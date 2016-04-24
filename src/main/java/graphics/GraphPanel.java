@@ -19,7 +19,7 @@ public class GraphPanel extends JComponent {
     public int yMax;
     public int scaleValue;
     public boolean paused;
-    
+
 
     public GraphPanel() {
         this(100, 1000, 1000, 100);
@@ -62,22 +62,57 @@ public class GraphPanel extends JComponent {
     }
 
     private void drawTransmitters(Graphics2D g) {
-        for (int i = 0; i < snapshot.transmitters.length; i++) {
-            Position pos = snapshot.transmitters[i];
-            int x = scaleX(pos.getX()) - 5;
-            int y = scaleY(pos.getY()) - 5;
-            long trans = snapshot.transmittersHistory[i].get(0);
-            g.setColor(trans == 0 ? Color.GREEN : Color.BLACK);
-            g.fillOval(x, y, 10, 10);
+        if(this.paused==false) {
+            for (int i = 0; i < snapshot.transmitters.length; i++) {
+                Position pos = snapshot.transmitters[i];
+                int x = scaleX(pos.getX()) - 5;
+                int y = scaleY(pos.getY()) - 5;
+                long trans = snapshot.transmittersHistory[i].get(0);
+                g.setColor(trans == 0 ? Color.GREEN : Color.BLACK);
+                g.fillOval(x, y, 15, 15);
+            }
+        }
+        else {
+            for (int i = 0; i < snapshot.transmitters.length; i++) {
+                Position pos = snapshot.transmitters[i];
+                int x = scaleX(pos.getX()) - 5;
+                int y = scaleY(pos.getY()) - 5;
+                long trans = snapshot.transmittersHistory[i].get(0);
+                g.setColor(trans == 0 ? Color.GREEN : Color.BLACK);
+                g.fillOval(x, y, 15, 15);
+                x-=200;
+                y+=10;
+                g.setColor(Color.BLACK);
+                g.setFont(new Font("default", Font.BOLD, 16));
+                g.drawString("T"+i+" : Strength: "+Long.toString(snapshot.transmittersHistory[i].get(0)),x,y);
+                y+=16;
+                g.drawString("T"+i+" : Decoded: "+Long.toString(snapshot.decodedTransmitterHistory[i].get(0)), x, y);
+            }
         }
     }
 
     private void drawReceivers(Graphics2D g) {
-        for (Position p : this.snapshot.receivers) {
-            int x = scaleX(p.getX()) - 5;
-            int y = scaleY(p.getY()) - 5;
-            g.setColor(Color.BLUE);
-            g.fillOval(x, y, 10, 10);
+        if(this.paused == false) {
+            for (Position p : this.snapshot.receivers) {
+                int x = scaleX(p.getX()) - 5;
+                int y = scaleY(p.getY()) - 5;
+                g.setColor(Color.BLUE);
+                g.fillOval(x, y, 15, 15);
+            }
+        }
+        else{
+            for(int i=0; i<this.snapshot.receivers.length; i++){
+                int x = scaleX(this.snapshot.receivers[i].getX()) - 5;
+                int y = scaleY(this.snapshot.receivers[i].getY()) - 5;
+                g.setColor(Color.BLUE);
+                g.fillOval(x, y, 15, 15);
+                x+=40;
+                y+=10;
+                g.setColor(Color.BLACK);
+                g.setFont(new Font("default", Font.BOLD, 16));
+                g.drawString("R"+i+" : Strength: "+Long.toString(snapshot.transmittersHistory[i].get(0)),x,y);
+
+            }
         }
     }
 
