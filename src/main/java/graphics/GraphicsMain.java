@@ -3,6 +3,8 @@ package graphics;
 import run.Snapshot;
 import run.SystemRunner;
 
+import javax.swing.*;
+
 /**
  * @author plorio
  */
@@ -16,17 +18,22 @@ public class GraphicsMain {
         graphPanel = new GraphPanel();
         graphPanel.updateSnapshot(runner.tick());
         graphFrame.add(graphPanel);
+        graphPanel.getInputMap(graphPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("SPACE"), "pause");
+        graphPanel.getActionMap().put("pause", graphPanel.new Pauser());
     }
 
     public void update() {
-        Snapshot snapshot = runner.tick();
-        graphPanel.updateSnapshot(snapshot);
-        graphPanel.paintImmediately(0, 0, graphPanel.xMax, graphPanel.yMax);
+        if(this.graphPanel.paused==false){
+            Snapshot snapshot = runner.tick();
+            graphPanel.updateSnapshot(snapshot);
+            if (snapshot.currentTick % 100 == 0) {
+                graphPanel.paintImmediately(0, 0, graphPanel.xMax, graphPanel.yMax);
+            }
+        }
     }
 
     public static void main(String[] args) {
         GraphicsMain graphics = new GraphicsMain();
-
         while (true) {
             graphics.update();
         }

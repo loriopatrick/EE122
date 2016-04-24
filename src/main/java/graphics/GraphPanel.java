@@ -1,15 +1,13 @@
 package graphics;
 
 
-import engine.Constants;
 import engine.Position;
 import engine.Signal;
 import run.Snapshot;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.Ellipse2D;
-import java.util.Arrays;
+import java.awt.event.ActionEvent;
 
 /*
  * Created by mia on 4/19/16.
@@ -20,6 +18,8 @@ public class GraphPanel extends JComponent {
     public int xMax;
     public int yMax;
     public int scaleValue;
+    public boolean paused;
+    
 
     public GraphPanel() {
         this(100, 1000, 1000, 100);
@@ -33,6 +33,7 @@ public class GraphPanel extends JComponent {
         setBackground(Color.WHITE);
         setVisible(true);
         this.snapshot = null;
+        this.paused=false;
     }
 
     public void updateSnapshot(Snapshot s) {
@@ -122,4 +123,22 @@ public class GraphPanel extends JComponent {
         return speed * ticks / this.ticks;
     }
 
+    public class Pauser extends AbstractAction{
+        public Pauser(){
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if(GraphPanel.this.paused == true){
+                GraphPanel.this.paused=false;
+            }
+            else{
+                GraphPanel.this.paused=true;
+                GraphPanel.this.paintImmediately(0, 0, GraphPanel.this.xMax, GraphPanel.this.yMax);
+            }
+        }
+    }
+
 }
+
+
