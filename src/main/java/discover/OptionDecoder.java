@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
  * @author plorio
  */
 public class OptionDecoder {
+    private final int depth;
     private final TreeMap<Long, List<SignalEvent>> signalUpdates;
     private final TransmitterProfile[] profiles;
     private final List<ExpectedChanges> expectedChangesList;
@@ -19,6 +20,15 @@ public class OptionDecoder {
     private final long longestPropagation;
 
     public OptionDecoder(TransmitterProfile[] profiles) {
+        this(profiles, 0);
+    }
+
+    public OptionDecoder(TransmitterProfile[] profiles, int depth) {
+        if (depth > 10) {
+            throw new RuntimeException("Does not converge");
+        }
+
+        this.depth = depth;
         this.profiles = profiles;
         signalUpdates = new TreeMap<>();
         expectedChangesList = new ArrayList<>();
@@ -63,7 +73,6 @@ public class OptionDecoder {
             List<OptionDecoder> deadTangents = new ArrayList<>();
             for (OptionDecoder tangent : tangents) {
                 if (tangent.processChanges(currentTick, changes)) {
-                    System.out.println("DIE");
                     deadTangents.add(tangent);
                 }
             }
@@ -72,14 +81,11 @@ public class OptionDecoder {
             // all future possibilities are not possible
             // so this must not be possible
             if (tangents.size() == 0) {
-                System.out.println("Removed all tangents");
                 return true;
             }
 
             // merge tangent to this option
             if (tangents.size() == 1) {
-                System.out.println("CONVERGE");
-                System.exit(0);
                 OptionDecoder reality = tangents.get(0);
 
                 // merge signal updates
@@ -102,6 +108,7 @@ public class OptionDecoder {
 
                 // I am the captain now
                 tangents.clear();
+                tangents.addAll(reality.tangents);
             }
 
             return false;
@@ -136,7 +143,6 @@ public class OptionDecoder {
             // Determine all possible combinations of profiles that could have created this event
             List<List<Integer>> options = profileOptions.options(event.getDelta());
             if (options.size() == 0) {
-                System.out.println("No possible way to create this event");
                 return false;
             }
 
@@ -152,9 +158,8 @@ public class OptionDecoder {
             }
             // Split off into tangents for all combination possibilities
             else {
-                System.out.println("SPLIT: " + options.size());
                 for (List<Integer> activatedProfiles : options) {
-                    OptionDecoder tangent = new OptionDecoder(profiles);
+                    OptionDecoder tangent = new OptionDecoder(profiles, depth + 1);
                     tangent.expectedChangesList.addAll(expectedChangesList);
                     System.arraycopy(latestStates, 0, tangent.latestStates, 0, latestStates.length);
                     tangent.lastProcessedTick = tick;

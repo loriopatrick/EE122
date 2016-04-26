@@ -13,7 +13,7 @@ public class GraphicsMain {
     private final GraphPanel graphPanel;
 
     public GraphicsMain() {
-        runner = new SystemRunner();
+        runner = new SystemRunner(3, 5);
         GraphFrame graphFrame = new GraphFrame();
         graphPanel = new GraphPanel();
         graphPanel.updateSnapshot(runner.tick());

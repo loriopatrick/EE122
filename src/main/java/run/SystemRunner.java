@@ -14,6 +14,11 @@ import java.util.Random;
  * @author plorio
  */
 public class SystemRunner {
+    public static final long SAMPLE_RATE = 1000;
+
+    private final int rCount;
+    private final int tCount;
+
     private final Random random;
     private final Receiver[] receivers;
     private final Transmitter[] transmitters;
@@ -24,12 +29,14 @@ public class SystemRunner {
     private final OptionDecoder decoder;
     private final long[] decoded;
 
-    public SystemRunner() {
+    public SystemRunner(int rCount, int tCount) {
+        this.rCount = rCount;
+        this.tCount = tCount;
         random = new Random(1024);
         receivers = buildReceivers();
         transmitters = buildTransmitters();
         profiles = buildProfiles();
-        engine = new SignalEngine(100, new Grid(receivers));
+        engine = new SignalEngine(SAMPLE_RATE, new Grid(receivers));
         analyzer = new NetworkAnalyzer(engine);
         snapshot = new Snapshot(receivers, transmitters, engine.getSignals(), 100);
         decoder = new OptionDecoder(profiles);
@@ -48,7 +55,7 @@ public class SystemRunner {
         ReceiverChange[] changes = analyzer.getChanges();
 
         if (decoder.processChanges(engine.getCurrentTick(), changes)) {
-            throw new RuntimeException("Decoder error");
+            throw new RuntimeException("Decoder error at " + engine.getCurrentTick());
         }
 
         List<SignalEvent> signalEvents = decoder.takeEvents(engine.getCurrentTick());
@@ -71,7 +78,7 @@ public class SystemRunner {
     }
 
     private TransmitterProfile[] buildProfiles() {
-        SignalEngine engine = new SignalEngine(100, new Grid(buildReceivers()));
+        SignalEngine engine = new SignalEngine(SAMPLE_RATE, new Grid(buildReceivers()));
 
         Transmitter[] transmitters = buildTransmitters();
         TransmitterProfile[] profiles = new TransmitterProfile[transmitters.length];
@@ -83,32 +90,21 @@ public class SystemRunner {
     }
 
     private Receiver[] buildReceivers() {
-        return new Receiver[]{
-                new Receiver(0, -MathUtil.inMeters(0), MathUtil.inMeters(0)),
-                new Receiver(1, MathUtil.inMeters(0), MathUtil.inMeters(30)),
-                new Receiver(2, MathUtil.inMeters(0), MathUtil.inMeters(-30))
-        };
+        Receiver[] receivers = new Receiver[rCount];
+        for (int i = 0; i < receivers.length; i++) {
+            receivers[i] = new Receiver(i, MathUtil.inMeters(0), MathUtil.inMeters(i * 10 - 0.5));
+        }
+        return receivers;
     }
 
     private Transmitter[] buildTransmitters() {
-        return new Transmitter[]{
-                new Transmitter(MathUtil.inSeconds(10), MathUtil.inJoules(20),
-                        MathUtil.inMeters(0), MathUtil.inMeters(5)),
-                new Transmitter(MathUtil.inSeconds(10), MathUtil.inJoules(10),
-                        MathUtil.inMeters(0), MathUtil.inMeters(20)),
-                new Transmitter(MathUtil.inSeconds(10), MathUtil.inJoules(30),
-                        MathUtil.inMeters(0), MathUtil.inMeters(50)),
-                new Transmitter(MathUtil.inSeconds(10), MathUtil.inJoules(30),
-                        MathUtil.inMeters(0), -MathUtil.inMeters(15)),
-                new Transmitter(MathUtil.inSeconds(10), MathUtil.inJoules(60),
-                        MathUtil.inMeters(0), MathUtil.inMeters(-32)),
-                new Transmitter(MathUtil.inSeconds(10), MathUtil.inJoules(5),
-                        MathUtil.inMeters(0), MathUtil.inMeters(2)),
-                new Transmitter(MathUtil.inSeconds(10), MathUtil.inJoules(5),
-                        MathUtil.inMeters(0), MathUtil.inMeters(8)),
-                new Transmitter(MathUtil.inSeconds(10), MathUtil.inJoules(5),
-                        MathUtil.inMeters(0), MathUtil.inMeters(-12)),
-        };
+        Random rand = new Random(100);
+        Transmitter[] transmitters = new Transmitter[tCount];
+        for (int i = 0; i < transmitters.length; i++) {
+            transmitters[i] = new Transmitter(MathUtil.inMeters(10), MathUtil.inJoules(5),
+                    MathUtil.inMeters(5), MathUtil.inMeters(i + rand.nextDouble() * 0.75));
+        }
+        return transmitters;
     }
 
     private List<ReceiverChange> getEffect(SignalEngine engine, Transmitter transmitter) {

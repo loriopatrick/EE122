@@ -4,6 +4,7 @@ package graphics;
 import engine.Position;
 import engine.Signal;
 import run.Snapshot;
+import run.SystemRunner;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,7 +23,7 @@ public class GraphPanel extends JComponent {
 
 
     public GraphPanel() {
-        this(100, 1000, 1000, 100);
+        this(SystemRunner.SAMPLE_RATE, 1000, 1000, 100);
     }
 
     public GraphPanel(long ticksPerSecond, int xMaximum, int yMaximum, int scaleVal) {
