@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
  * @author plorio
  */
 public class OptionDecoder {
+    private static int options = 0;
+
     private final int depth;
     private final TreeMap<Long, List<SignalEvent>> signalUpdates;
     private final TransmitterProfile[] profiles;
@@ -24,9 +26,7 @@ public class OptionDecoder {
     }
 
     public OptionDecoder(TransmitterProfile[] profiles, int depth) {
-        if (depth > 10) {
-            throw new RuntimeException("Does not converge");
-        }
+        options += 1;
 
         this.depth = depth;
         this.profiles = profiles;
@@ -74,6 +74,7 @@ public class OptionDecoder {
             for (OptionDecoder tangent : tangents) {
                 if (tangent.processChanges(currentTick, changes)) {
                     deadTangents.add(tangent);
+                    options -= 1;
                 }
             }
             deadTangents.forEach(tangents::remove);
@@ -109,6 +110,7 @@ public class OptionDecoder {
                 // I am the captain now
                 tangents.clear();
                 tangents.addAll(reality.tangents);
+                options -= 1;
             }
 
             return false;
@@ -274,5 +276,13 @@ public class OptionDecoder {
         public boolean isOver(long tick) {
             return profile.getEvents().get(profile.getEvents().size() - 1).getTick() + startTick < tick;
         }
+    }
+
+    public static int GetActiveOptions() {
+        return options;
+    }
+
+    public static void ResetActiveOptions() {
+        options = 0;
     }
 }

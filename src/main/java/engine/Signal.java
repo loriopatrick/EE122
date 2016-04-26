@@ -31,7 +31,7 @@ public class Signal implements Position {
      */
     public long getStrength(Position position) {
         long distanceSquared = (MathUtil.square(position.getX() - x) + MathUtil.square(position.getY() - y));
-        return energy * Constants.METER_ACCURACY * Constants.METER_ACCURACY / distanceSquared;
+        return energy * Constants.METER_ACCURACY / (long)Math.sqrt(distanceSquared);
     }
 
     public void update() {

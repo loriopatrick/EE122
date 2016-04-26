@@ -14,7 +14,7 @@ import java.util.Random;
  * @author plorio
  */
 public class SystemRunner {
-    public static final long SAMPLE_RATE = 1000;
+    public static final long SAMPLE_RATE = 100;
 
     private final int rCount;
     private final int tCount;
@@ -45,7 +45,7 @@ public class SystemRunner {
 
     public Snapshot tick() {
         for (Transmitter transmitter : transmitters) {
-            if (random.nextDouble() > 0.9) {
+            if (engine.getCurrentTick() % 10 == 0 && random.nextDouble() > 0.5) {
                 transmitter.setActive(!transmitter.isActive());
             }
             transmitter.update(engine);
@@ -91,8 +91,9 @@ public class SystemRunner {
 
     private Receiver[] buildReceivers() {
         Receiver[] receivers = new Receiver[rCount];
+        int sep = tCount * 10 / rCount;
         for (int i = 0; i < receivers.length; i++) {
-            receivers[i] = new Receiver(i, MathUtil.inMeters(0), MathUtil.inMeters(i * 10 - 0.5));
+            receivers[i] = new Receiver(i, MathUtil.inMeters(0), MathUtil.inMeters(i * sep - 0.5));
         }
         return receivers;
     }
@@ -102,7 +103,7 @@ public class SystemRunner {
         Transmitter[] transmitters = new Transmitter[tCount];
         for (int i = 0; i < transmitters.length; i++) {
             transmitters[i] = new Transmitter(MathUtil.inMeters(10), MathUtil.inJoules(5),
-                    MathUtil.inMeters(5), MathUtil.inMeters(i + rand.nextDouble() * 0.75));
+                    MathUtil.inMeters(5), MathUtil.inMeters((i + rand.nextDouble() * 0.75) * 10));
         }
         return transmitters;
     }
