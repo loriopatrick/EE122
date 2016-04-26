@@ -38,17 +38,23 @@ public class SystemRunner {
         profiles = buildProfiles();
         engine = new SignalEngine(SAMPLE_RATE, new Grid(receivers));
         analyzer = new NetworkAnalyzer(engine);
-        snapshot = new Snapshot(receivers, transmitters, engine.getSignals(), 100);
+        snapshot = new Snapshot(receivers, transmitters, engine.getSignals(), 10000);
         decoder = new OptionDecoder(profiles);
         decoded = new long[transmitters.length];
     }
 
-    public Snapshot tick() {
-        for (Transmitter transmitter : transmitters) {
-            if (engine.getCurrentTick() % 10 == 0 && random.nextDouble() > 0.5) {
-                transmitter.setActive(!transmitter.isActive());
+    public int getActiveProfiles() {
+        return decoder.getActiveProfileCount();
+    }
+
+    public Snapshot tick(boolean transmit) {
+        if (transmit) {
+            for (Transmitter transmitter : transmitters) {
+                if (engine.getCurrentTick() % 2 == 0 && random.nextDouble() > 0.5) {
+                    transmitter.setActive(!transmitter.isActive());
+                }
+                transmitter.update(engine);
             }
-            transmitter.update(engine);
         }
 
         engine.update();
@@ -58,7 +64,9 @@ public class SystemRunner {
             throw new RuntimeException("Decoder error at " + engine.getCurrentTick());
         }
 
-        List<SignalEvent> signalEvents = decoder.takeEvents(engine.getCurrentTick());
+        List<SignalEvent> signalEvents = decoder.takeEvents();
+        snapshot.decodedTicks.push(decoder.getLastDecodedTick());
+        snapshot.ticks.push(engine.getCurrentTick());
         for (SignalEvent signalEvent : signalEvents) {
             decoded[signalEvent.getTransmitter()] = signalEvent.isOn() ? 1 : 0;
         }

@@ -45,11 +45,24 @@ public class OptionDecoder {
         longestPropagation = maxTick;
     }
 
-    public List<SignalEvent> takeEvents(long currentTick) {
+
+    public int getActiveProfileCount() {
+        int s = expectedChangesList.size();
+        for (OptionDecoder tangent : tangents) {
+            s += tangent.getActiveProfileCount();
+        }
+        return s;
+    }
+
+    public long getLastDecodedTick() {
+        return lastProcessedTick - longestPropagation;
+    }
+
+    public List<SignalEvent> takeEvents() {
         List<SignalEvent> events = new ArrayList<>();
         List<Long> ticks = new ArrayList<>();
         for (long tick : signalUpdates.navigableKeySet()) {
-            if (tick + longestPropagation > currentTick) {
+            if (tick + longestPropagation >= lastProcessedTick) {
                 break;
             }
             events.addAll(signalUpdates.get(tick));

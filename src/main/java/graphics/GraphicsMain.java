@@ -16,7 +16,7 @@ public class GraphicsMain {
         runner = new SystemRunner(3, 5);
         GraphFrame graphFrame = new GraphFrame();
         graphPanel = new GraphPanel();
-        graphPanel.updateSnapshot(runner.tick());
+        graphPanel.updateSnapshot(runner.tick(true));
         graphFrame.add(graphPanel);
         graphPanel.getInputMap(graphPanel.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("SPACE"), "pause");
         graphPanel.getActionMap().put("pause", graphPanel.new Pauser());
@@ -24,7 +24,7 @@ public class GraphicsMain {
 
     public void update() {
         if(this.graphPanel.paused==false){
-            Snapshot snapshot = runner.tick();
+            Snapshot snapshot = runner.tick(true);
             graphPanel.updateSnapshot(snapshot);
             if (snapshot.currentTick % 100 == 0) {
                 graphPanel.paintImmediately(0, 0, graphPanel.xMax, graphPanel.yMax);

@@ -17,6 +17,8 @@ public class Snapshot {
     public final CircleBuffer[] transmittersHistory;
     public final CircleBuffer[] receiversHistory;
     public final CircleBuffer[] decodedTransmitterHistory;
+    public final CircleBuffer ticks;
+    public final CircleBuffer decodedTicks;
 
     public Snapshot(Position[] receivers, Position[] transmitters, List<Signal> signals, int historySize) {
         this.receivers = receivers;
@@ -35,6 +37,8 @@ public class Snapshot {
         for (int i = 0; i < decodedTransmitterHistory.length; i++) {
             decodedTransmitterHistory[i] = new CircleBuffer(historySize);
         }
+        ticks = new CircleBuffer(historySize);
+        decodedTicks = new CircleBuffer(historySize);
     }
 
     public static class CircleBuffer {
@@ -54,7 +58,7 @@ public class Snapshot {
         }
 
         public void push(long value) {
-            values[idx(start)] = value;
+            values[idx(0)] = value;
             start += 1;
         }
 
