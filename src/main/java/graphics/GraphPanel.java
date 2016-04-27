@@ -23,7 +23,7 @@ public class GraphPanel extends JComponent {
 
 
     public GraphPanel() {
-        this(SystemRunner.SAMPLE_RATE, 1000, 1000, 100);
+        this(SystemRunner.SAMPLE_RATE, 1000, 1000, 1000);
     }
 
     public GraphPanel(long ticksPerSecond, int xMaximum, int yMaximum, int scaleVal) {

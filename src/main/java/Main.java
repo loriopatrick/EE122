@@ -9,7 +9,7 @@ public class Main {
 
         int last = 0;
         int countSinceOne = 0;
-        int t = 1;
+        int t = 9;
         for (int r = 2; r < 100; r++) {
             for (; t < 100; t++) {
                 boolean failed = false;
