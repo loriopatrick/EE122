@@ -26,6 +26,7 @@ Format:
     Try <# of transmitters> transmitter : <# of receiver probes> receivers
     <# of possibilities, sampled on change or every 10,000 ticks> <converges?>
 
+```
 Try 9 transmitter : 2 receivers 1,1, SUCCESS
 Try 10 transmitter : 2 receivers 1,1, SUCCESS
 Try 11 transmitter : 2 receivers 1,1, SUCCESS
@@ -85,3 +86,4 @@ Try 55 transmitter : 11 receivers 1,1, SUCCESS
 Try 56 transmitter : 11 receivers 1,1, SUCCESS
 Try 57 transmitter : 11 receivers 1,1, SUCCESS
 Try 58 transmitter : 11 receivers 1,1, SUCCESS
+```
