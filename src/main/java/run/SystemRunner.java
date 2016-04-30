@@ -2,8 +2,6 @@ package run;
 
 import discover.*;
 import engine.*;
-import graphics.GraphFrame;
-import graphics.GraphPanel;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -101,7 +99,7 @@ public class SystemRunner {
         Receiver[] receivers = new Receiver[rCount];
         int sep = tCount * 10 / rCount;
         for (int i = 0; i < receivers.length; i++) {
-            receivers[i] = new Receiver(i, MathUtil.inMeters(0), MathUtil.inMeters(i * sep - 0.5));
+            receivers[i] = new Receiver(i, MathUtil.inMeters(0), MathUtil.inMeters((i+0.5) * sep - 0.5));
         }
         return receivers;
     }
