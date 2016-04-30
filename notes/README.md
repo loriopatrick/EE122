@@ -1,12 +1,27 @@
 # Notes
 
-ValueLog verifies that the decoded values match the transmitted signals. See `res.csv` in this folder for an example.
-
 This system will either converge or grow exponentially with possibilities. The parameters that can be tuned are
  - the position and number of transmitters and receivers
  - the sampling frequency
  - the signal strength drop off
 
+The simulation was originally setup to model wireless communication. To simulate wired communication we simply restrict
+ourselves to placing all network elements in a line. It would be nice to rework the simulation to accurately model
+wiring so we could test more complex configurations (graphs).
+
+To get adequate performance we had to model the signal having different strengths based on distance from the transmitter.
+With plain copper wire the resistance is too low for this to be accurate. It might be possible to add resistivity to
+achieve the effect we modeled.
+
+It might be possible to modify the algorithm to work for radio communication. If we know the phase that each transmitter
+is sending with we should be able to build a profile for each transmitter. With the phases known we can calculate how
+interference works between the different transmitters at the receiver probes.
+
+Noise is something we did not worry about for this project. The trouble is noise could make our system believe a
+profile has become active, when the profile is not confirmed we would have an error. We could break off into another
+option in the possibility tree but that would make the system more likely to diverge. A system where the probability of
+each possibility might help. The problem might also be fixed by an expected coding scheme by each transmitter. With
+the coding scheme the invalid possibilities could be closed faster preventing divergence.
 
 #### Observations
 
